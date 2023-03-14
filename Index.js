@@ -10,20 +10,24 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-
+mongoclient.connect(async function (err, mongoclient) {
+global.mongoclient = mongoclient;
 for (const file of commandFiles) {
 	const filePath = path.join(commandsPath, file);
 	const command = require(filePath);
 	client.commands.set(command.data.name, command);
 }
+const { ActivityType } = require('discord.js');
+
 
 client.once(Events.ClientReady, () => {
 	console.log('Ready!');
-
+});
 
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
 	const command = client.commands.get(interaction.commandName);
+
 	if (!command) return;
 
 	try {
@@ -37,7 +41,6 @@ client.on(Events.InteractionCreate, async interaction => {
 		}
 	}
 });
-
+client.login(TOKEN);
 })
 
-client.login(TOKEN);
