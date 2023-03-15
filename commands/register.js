@@ -40,7 +40,6 @@ module.exports = {
 		{ name: 'Win-Loss Record', value: "0-0", inline: true },
 		{ name: 'Date joined', value: dateFormatted, inline: true },
 	)
-	.setTimestamp();
 	
 		var role= interaction.member.guild.roles.cache.find(role => role.name === "Debater");
 		interaction.member.roles.add(role);

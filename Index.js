@@ -1,12 +1,12 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits} = require('discord.js');
 const { MongoClient } = require('mongodb')
 const env = require('dotenv').config()
 const URI = process.env.URI
 const TOKEN = process.env.TOKEN;
 const mongoclient = new MongoClient(URI, { useUnifiedTopology: true });
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -17,11 +17,18 @@ for (const file of commandFiles) {
 	const command = require(filePath);
 	client.commands.set(command.data.name, command);
 }
-const { ActivityType } = require('discord.js');
 
 
 client.once(Events.ClientReady, () => {
 	console.log('Ready!');
+});
+client.on('guildMemberAdd', async member => {
+	const mongoUsers = mongoclient.db("RankedPDT").collection("users");
+	var results = await mongoUsers.findOne({id: member.id});
+	if(results != null){
+		var role= member.guild.roles.cache.find(role => role.name === "Debater");
+		member.roles.add(role);
+	}
 });
 
 client.on(Events.InteractionCreate, async interaction => {

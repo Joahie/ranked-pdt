@@ -20,7 +20,9 @@ module.exports = {
 				return interaction.reply({ content: "You don't have a Ranked PDT account", ephemeral: true });
 			}
 			var name = results.firstName +" "+ results.lastName;
-			var elo = results.elo + "";
+			var elo = results.elo*1;
+			elo = Math.floor(results.elo)
+			elo =  elo + ""
 			var club = results.club;
 			var wins = results.wins;
 			var losses = results.losses;
@@ -33,7 +35,9 @@ module.exports = {
 				return interaction.reply({ content: target.username  + " doesn't have a Ranked PDT account", ephemeral: true });
 			}
 			var name = results.firstName +" "+  results.lastName;
-			var elo = results.elo + "";
+			var elo = results.elo*1;
+			elo = Math.floor(results.elo)
+			elo =  elo + ""
 			var club = results.club;
 			var wins = results.wins;
 			var losses = results.losses;
@@ -51,7 +55,6 @@ module.exports = {
 		{ name: 'Date joined', value: dateJoined, inline: true },
 
 	)
-	.setTimestamp();
 		return interaction.reply({ embeds: [embed] });
 	},
 };
