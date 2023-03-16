@@ -26,11 +26,13 @@ client.on('guildMemberAdd', async member => {
 	const mongoUsers = mongoclient.db("RankedPDT").collection("users");
 	var results = await mongoUsers.findOne({id: member.id});
 	if(results != null){
-		var role= member.guild.roles.cache.find(role => role.name === "Debater");
+		var role= member.guild.roles.cache.find(role => role.name == "Debater");
 		member.roles.add(role);
 	}
 });
-
+client.on(Events.InteractionCreate, async interaction => {
+	if (!interaction.isChatInputCommand()) return;
+});
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
 	const command = client.commands.get(interaction.commandName);

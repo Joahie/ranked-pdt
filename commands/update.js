@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { EmbedBuilder } = require('discord.js');
+const {  ActionRowBuilder, ButtonBuilder, ButtonStyle, Events , EmbedBuilder } = require('discord.js');
 mongoclient = global.mongoclient;
 const mongoUsers = mongoclient.db("RankedPDT").collection("users");
 const mongoRounds = mongoclient.db("RankedPDT").collection("rounds");
@@ -17,7 +17,7 @@ module.exports = {
 	async execute(interaction) {
 		if(interaction.channel.id != 1085212287603843185){
 			return interaction.reply({ content: "Commands only work in <#1085212287603843185>", ephemeral: true });
-		}		
+		}
 		var gov = interaction.options.getUser('government-team');
 		var opp = interaction.options.getUser('opposition-team');
 		var govVotes = interaction.options.getInteger('government-votes');
@@ -27,8 +27,22 @@ module.exports = {
 		if(gov.id == opp.id){
 			return interaction.reply({ content: "The government and opposition teams cannot be the same user", ephemeral: true });
 		}
+		if(gov.id == interaction.user){
+			var otherDebaterID = opp.id;
+
+		}else if(opp.id == interaction.user){
+			var otherDebaterID = gov.id;
+		}else{
+			return interaction.reply({ content: "You can only report the results of a round if you were a participant/debater", ephemeral: true });
+		}
 		var govDB = await mongoUsers.findOne({id: gov.id})
 		var oppDB = await mongoUsers.findOne({id: opp.id})
+		if(gov.id == interaction.user){
+			var otherDebaterName = oppDB.firstName + " " + oppDB.lastName ;
+
+		}else if(opp.id == interaction.user){
+			var otherDebaterName = govDB.firstName + " " + govDB.lastName ;
+		}
 		if(govDB == null && oppDB == null){
 			return interaction.reply({ content: gov.username  + " and " + opp.username + " don't have Ranked PDT accounts", ephemeral: true });
 		}
@@ -81,6 +95,106 @@ module.exports = {
 		var oppEloChange = R_O - oppDB.elo*1
 		var originalGovElo = govDB.elo;
 		var originalOppElo = oppDB.elo;
+
+		
+		var govTeamConfirmationEmbed = "Debater: " + govFullName + " (<@"+gov.id+">)\nVotes: " + govVotes;
+		var oppTeamConfirmationEmbed = "Debater: " + oppFullName + "(<@"+opp.id+">)\nVotes: " + oppVotes;
+		const confirmationEmbed = new EmbedBuilder()
+
+		.setColor(0x0099FF)
+		.setTitle("Round Confirmation")
+		.setDescription('Resolution: ' + resolution)
+		.addFields(
+			{ name: 'Government Team', value: govTeamConfirmationEmbed, inline: false},
+			{ name: 'Opposition Team', value: oppTeamConfirmationEmbed, inline: false},
+			{ name: 'Winner', value: winnerDeclaration, inline: false},
+		)
+		var row = new ActionRowBuilder()
+			.addComponents(
+				new ButtonBuilder()
+					.setCustomId('confirm')
+					.setLabel('Confirm')
+					.setStyle(ButtonStyle.Primary),
+					new ButtonBuilder()
+
+					.setCustomId('cancel')
+					.setLabel('Deny')
+					.setStyle(ButtonStyle.Danger),
+			);
+			var greyOut = new ActionRowBuilder()
+			.addComponents(
+				new ButtonBuilder()
+					.setCustomId('confirm')
+					.setLabel('Confirm')
+					.setStyle(ButtonStyle.Primary)
+					.setDisabled(true),
+					new ButtonBuilder()
+
+					.setCustomId('cancel')
+					.setLabel('Deny')
+					.setStyle(ButtonStyle.Danger)
+					.setDisabled(true),
+			);
+		 await interaction.reply({embeds: [confirmationEmbed], components: [row]})
+		 interaction.channel.send({content: "<@"+otherDebaterID+"> please confirm or deny the results of this round. If you don't respond within 1 day, the results will be automatically validated."})
+		 var filter = i => {
+			if(i.user.id == otherDebaterID) return true;
+			else {
+			  i.reply({content: "Only " + otherDebaterName + " can confirm or deny this round's results", ephemeral: true});
+			  return false;
+			}
+		  }
+		
+		var collector = interaction.channel.createMessageComponentCollector({ filter, time: 86400000 });
+		
+		collector.on('collect', async i => {
+				await i.update({components: [greyOut] });
+				if(i.customId === 'confirm'){
+					interaction.channel.send({content:"The results of round #"+roundID+" have been confirmed by <@"+otherDebaterID+">"})
+					await mongoRounds.insertOne({id: amountOfRounds, displayID: roundID, govDebater: gov.id, oppDebater: opp.id, govVotes: govVotes, oppVotes: oppVotes, resolution: resolution, date: dateFormatted, govElo: R_G,oppElo: R_O,govEloChange: govEloChange, oppEloChange: oppEloChange, winner: winner})
+					await mongoRounds.updateOne({id: "Count"},{$set:{count: newCount}})
+					if(gov_votes > opp_votes){
+						var newGovWins = govDB.wins*1 + 1
+						var newOppWins = oppDB.wins*1 - 1
+					}else{
+						var newGovWins = govDB.wins*1 - 1
+						var newOppWins = oppDB.wins*1 + 1
+					}
+					await mongoUsers.updateOne({id: govDB.id},{$set:{elo: R_G, wins: newGovWins}})
+					await mongoUsers.updateOne({id: oppDB.id},{$set:{elo: R_O, wins: newOppWins}})
+					if(govEloChange > 0){
+						var govTeamEmbed = "Debater: " + govFullName + " (<@"+gov.id+">)\nVotes: " + govVotes + "\nElo: +"+Math.floor(govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(R_G)+"]";
+					}else{
+						var govTeamEmbed = "Debater: " + govFullName + " (<@"+gov.id+">)\nVotes: " + govVotes + "\nElo: "+Math.floor(govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(R_G)+"]";
+					}
+					if(oppEloChange > 0){
+						var oppTeamEmbed = "Debater: " + oppFullName + "(<@"+opp.id+">)\nVotes: " + oppVotes + "\nElo: +"+Math.floor(oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(R_O)+"]";
+					}else{
+						var oppTeamEmbed = "Debater: " + oppFullName + "(<@"+opp.id+">)\nVotes: " + oppVotes + "\nElo: "+Math.floor(oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(R_O)+"]";
+					}
+					const embed = new EmbedBuilder()
+			
+				.setColor(0x0099FF)
+				.setTitle("Round #" + roundID)
+				.setDescription('Resolution: ' + resolution)
+				.addFields(
+					{ name: 'Government Team', value: govTeamEmbed, inline: false},
+					{ name: 'Opposition Team', value: oppTeamEmbed, inline: false},
+					{ name: 'Winner', value: winnerDeclaration, inline: false},
+				)
+					return interaction.channel.send({ embeds: [embed]});
+					
+				}else if(i.customId === "cancel"){
+					return interaction.channel.send({content:"The results of the round reported by <@"+i.user.id+"> have been denied by <@"+otherDebaterID+">"})
+				}
+				console.log('HELLO')
+		});
+		
+		collector.on('end', async collected => {
+
+			if(collected.size == 0){
+				await interaction.editReply({components: [greyOut] });
+
 		await mongoRounds.insertOne({id: amountOfRounds, displayID: roundID, govDebater: gov.id, oppDebater: opp.id, govVotes: govVotes, oppVotes: oppVotes, resolution: resolution, date: dateFormatted, govElo: R_G,oppElo: R_O,govEloChange: govEloChange, oppEloChange: oppEloChange, winner: winner})
 		await mongoRounds.updateOne({id: "Count"},{$set:{count: newCount}})
 		if(gov_votes > opp_votes){
@@ -112,6 +226,14 @@ module.exports = {
 		{ name: 'Opposition Team', value: oppTeamEmbed, inline: false},
 		{ name: 'Winner', value: winnerDeclaration, inline: false},
 	)
-		return interaction.reply({ embeds: [embed] });
+		await interaction.channel.send({content: "<@"+otherDebaterID+"> didn't respond within 1 day, so round #" + roundID+" (reported by <@" +interaction.user.id+ ">) has been automatically validated."})
+		return interaction.channel.send({ embeds: [embed]});
+		
+
+			}
+		});
+		
+		
+	
 	},
 };
