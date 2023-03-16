@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const {  ActionRowBuilder, ButtonBuilder, ButtonStyle, Events , EmbedBuilder } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 mongoclient = global.mongoclient;
 const mongoUsers = mongoclient.db("RankedPDT").collection("users");
 const mongoRounds = mongoclient.db("RankedPDT").collection("rounds");
@@ -8,8 +8,24 @@ module.exports = {
 	
 	data: new SlashCommandBuilder()
 		.setName('leaderboard')
-		.setDescription('View the leaderboard (sorted by elo)'),
+		.setDescription('View the leaderboard (sorted by elo)')
+		.addIntegerOption(option => option.setName('page').setDescription("The page of the leaderboard that you'd like to view")),
 	async execute(interaction) {
+		if(interaction.channel.id != 1085212287603843185){
+			return interaction.reply({ content: "Commands only work in <#1085212287603843185>", ephemeral: true });
+		}		
+		var leaderboardPage = interaction.options.getInteger('page');
+		const count = await mongoUsers.count();
+		var pages = Math.ceil(count/10)
+		if(pages < leaderboardPage){ 
+			if(pages > 1){
+				return interaction.reply({ content: "There are only " + pages + " pages on the leaderboard", ephemeral: true });
+			}else if(pages == 1){
+				return interaction.reply({ content: "There is only 1 page of the leaderboard", ephemeral: true });
+
+			}
+		}
+
 		const results = await mongoUsers.find({}).toArray();
 		var eloArray = [];
 		var nameArray = [];
@@ -20,6 +36,7 @@ module.exports = {
 			var fullName = results[i].firstName + " " + results[i].lastName;
 			nameArray.push(fullName)
 		}
+
 		function quickSortThreeArraysDescending(arr1, arr2, arr3) {
 			if (arr1.length <= 1) {
 				return [arr1, arr2, arr3];
@@ -54,120 +71,56 @@ module.exports = {
 				[...sortedLeftArrays[2], arr3[pivotIndex], ...sortedRightArrays[2]]
 			];
 		}
+
 		sortedArrays = quickSortThreeArraysDescending(eloArray, idArray, nameArray)
 		eloArray = sortedArrays[0]
 		idArray = sortedArrays[1]
 		nameArray = sortedArrays[2]
+		var line;
+		var embededContent = ""
+		var prevRanking;
+		var prevElo;
 
-async function sendLeaderboard(message, page) {
-	const leaderboardData = "Page";
-	const embed = new EmbedBuilder()
-	  .setTitle(`Leaderboard (Page ${page})`)
-	  .setDescription(leaderboardData);
-	  if(page == 1){
-
-		var newRow = new ActionRowBuilder()
-		.addComponents(
-		  new ButtonBuilder()
-			.setCustomId('left')
-			.setEmoji('◀️')			
-			.setStyle(ButtonStyle.Primary)
-			.setDisabled(true),
-		  new ButtonBuilder()
-			.setCustomId('right')
-			.setEmoji('▶️')			
-			.setStyle(ButtonStyle.Primary)
-			);
-	  }else{
-		var newRow = new ActionRowBuilder()
-		.addComponents(
-		  new ButtonBuilder()
-			.setCustomId('left')
-			.setEmoji('◀️')			
-			.setStyle(ButtonStyle.Primary),
-		  new ButtonBuilder()
-			.setCustomId('right')
-			.setEmoji('▶️')			
-			.setStyle(ButtonStyle.Primary)
-			);
-	  }
-	  await interaction.editReply({ embeds: [embed], components: [newRow] });
-	const filter = i => i.user.id === message.user.id;
-	const collector = message.channel.createMessageComponentCollector({ filter, time: 15000 });
-	collector.on('collect', async i => {
-	  if (i.customId === 'left') {
-		page--;
-	  } else if (i.customId === 'right') {
-		page++;
-	  }
-	  await sendLeaderboard(message, page);
-	 });
-  }
-
-		if(eloArray.length > 2){
-			var numberOfPages = Math.ceil(eloArray.length/10);
-			var row = new ActionRowBuilder()
-			.addComponents(
-				new ButtonBuilder()
-				.setCustomId('left')
-				.setStyle(ButtonStyle.Primary)
-				.setEmoji('◀️')			
-				.setDisabled(true),
-				new ButtonBuilder()
-				.setCustomId('right')
-				.setStyle(ButtonStyle.Primary)
-				.setEmoji('▶️')			
-			);
-		const embed = new EmbedBuilder()
-		.setColor(0x0099FF)
-		.setTitle("Page 1")
-
-		interaction.reply({ embeds: [embed], components: [row] });
-		//create verification embed that only has some information, then ping otherDebaterID to see if they can confirm
-		//if they do confirm, then send the next message saying pog
-		//if they don't confirm, then automatically submit the results of the round anyways
-		const filter = i => i.customId === 'right' && i.user.id === interaction.user.id;
-		
-		const collector = interaction.channel.createMessageComponentCollector({ filter, time: 15000 });
-		
-		collector.on('collect', async i => {
-			sendLeaderboard(interaction, 2)
-		});
-
-
-return collector.on('end', collected => console.log(`Collected ${collected.size} items`));
-
-		}else{
-			var line;
-			var embededContent = ""
-			var prevRanking;
-			var prevElo;
-			for(i = 1; i <= eloArray.length; i++){
-				if(i == 1){
+		for(i = 1; i <= eloArray.length; i++){
+			if(i == 1){
+				line = i + ". " +Math.floor(eloArray[i-1]) + " - " + nameArray[i-1] + " (<@" + idArray[i-1] + ">)"
+				prevRanking = i;
+			}else{
+				if(prevElo == eloArray[i-1]){
+					line = prevRanking + ". " +Math.floor(eloArray[i-1]) + " - " + nameArray[i-1] + " (<@" + idArray[i-1] + ">)"
+					if(interaction.user.id == idArray[i-1]){
+						var ranking = prevRanking;
+					}
+				}else{
 					line = i + ". " +Math.floor(eloArray[i-1]) + " - " + nameArray[i-1] + " (<@" + idArray[i-1] + ">)"
 					prevRanking = i;
-				}else{
-					if(prevElo == eloArray[i-1]){
-						line = prevRanking + ". " +Math.floor(eloArray[i-1]) + " - " + nameArray[i-1] + " (<@" + idArray[i-1] + ">)"
-					}else{
-						line = i + ". " +Math.floor(eloArray[i-1]) + " - " + nameArray[i-1] + " (<@" + idArray[i-1] + ">)"
-						prevRanking = i;
+					if(interaction.user.id == idArray[i-1]){
+						var ranking = i;
 					}
 				}
-				prevElo = eloArray[i-1]	
-	
-				if((i)== eloArray.length){
-					embededContent = embededContent+ line;
-				}else{
-					embededContent = embededContent+  line + "\n";
-				}
+			}
+			prevElo = eloArray[i-1]	
+
+			if((i)== eloArray.length){
+				embededContent = embededContent+ line;
+			}else{
+				embededContent = embededContent+  line + "\n";
 			}
 		}
-		const embed = new EmbedBuilder()
-		.setColor(0x0099FF)
-		.setTitle("Elo Leaderboard")
-		.setDescription(embededContent)
-
-		return interaction.reply({ embeds: [embed], components: [row] });
+		if(ranking){
+			var rankString = "Your position: #" + ranking + " - "
+		}else{
+			var rankString = ""
+		}
+		if(leaderboardPage == null){
+			leaderboardPage = 1
+		}
+		var embed = new EmbedBuilder()
+	.setColor(0x0099FF)
+	.setTitle("Elo Leaderboard")
+	.setDescription(embededContent)
+	.setFooter({ text: rankString + 'Page ' + leaderboardPage + " of " + pages});
+		return interaction.reply({ embeds: [embed] });
 	},
+
 };

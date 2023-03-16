@@ -155,13 +155,17 @@ module.exports = {
 					await mongoRounds.updateOne({id: "Count"},{$set:{count: newCount}})
 					if(gov_votes > opp_votes){
 						var newGovWins = govDB.wins*1 + 1
-						var newOppWins = oppDB.wins*1 - 1
+						var newOppWins = oppDB.wins*1
+						var newGovLosses = govDB.losses*1
+						var newOppLosses = oppDB.losses*1+1
 					}else{
-						var newGovWins = govDB.wins*1 - 1
+						var newGovWins = govDB.wins*1
 						var newOppWins = oppDB.wins*1 + 1
+						var newGovLosses = govDB.losses*1+1
+						var newOppLosses = oppDB.losses*1
 					}
-					await mongoUsers.updateOne({id: govDB.id},{$set:{elo: R_G, wins: newGovWins}})
-					await mongoUsers.updateOne({id: oppDB.id},{$set:{elo: R_O, wins: newOppWins}})
+					await mongoUsers.updateOne({id: govDB.id},{$set:{elo: R_G, wins: newGovWins, losses: newGovLosses}})
+					await mongoUsers.updateOne({id: oppDB.id},{$set:{elo: R_O, wins: newOppWins, losses: newOppLosses}})
 					if(govEloChange > 0){
 						var govTeamEmbed = "Debater: " + govFullName + " (<@"+gov.id+">)\nVotes: " + govVotes + "\nElo: +"+Math.floor(govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(R_G)+"]";
 					}else{
