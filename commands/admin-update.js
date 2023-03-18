@@ -3,47 +3,32 @@ const {  ActionRowBuilder, ButtonBuilder, ButtonStyle, Events , EmbedBuilder } =
 mongoclient = global.mongoclient;
 const mongoUsers = mongoclient.db("RankedPDT").collection("users");
 const mongoRounds = mongoclient.db("RankedPDT").collection("rounds");
-
+const crypto = require('crypto');
 module.exports = {
 	
 	data: new SlashCommandBuilder()
 		.setName('admin-update')
-		.setDescription('Report a round that you debated in/judged to update elo')
+		.setDescription('Admin override for reporting a round (no opponent confirmation needed)')
 		.addUserOption(option => option.setName('government-team').setDescription('Debater on the government team').setRequired(true))
 		.addUserOption(option => option.setName('opposition-team').setDescription('Debater on the opposition team').setRequired(true))
 		.addIntegerOption(option => option.setName('government-votes').setDescription('Number of judges who voted government').setRequired(true))
 		.addIntegerOption(option => option.setName('opposition-votes').setDescription('Number of judges who voted opposition').setRequired(true))
-		.addStringOption(option => option.setName('resolution').setDescription('The resolution that was debated').setRequired(true))
-		.setDefaultMemberPermissions(0),
+		.addStringOption(option => option.setName('resolution').setDescription('The resolution that was debated').setRequired(true)),
 	async execute(interaction) {
-		if(interaction.channel.id != 1085212287603843185){
-			return interaction.reply({ content: "Commands only work in <#1085212287603843185>", ephemeral: true });
-		}
 		var gov = interaction.options.getUser('government-team');
 		var opp = interaction.options.getUser('opposition-team');
 		var govVotes = interaction.options.getInteger('government-votes');
 		var oppVotes = interaction.options.getInteger('opposition-votes');
 		var resolution = interaction.options.getString('resolution');
 		var totalVotes = govVotes + oppVotes;
+		var userLookup = await mongoUsers.findOne({id: interaction.user.id})
+		var adminName = userLookup.firstName + " " + userLookup.lastName;
 		if(gov.id == opp.id){
 			return interaction.reply({ content: "The government and opposition teams cannot be the same user", ephemeral: true });
 		}
-		if(gov.id == interaction.user){
-			var otherDebaterID = opp.id;
-
-		}else if(opp.id == interaction.user){
-			var otherDebaterID = gov.id;
-		}else{
-			return interaction.reply({ content: "You can only report the results of a round if you were a participant/debater", ephemeral: true });
-		}
 		var govDB = await mongoUsers.findOne({id: gov.id})
 		var oppDB = await mongoUsers.findOne({id: opp.id})
-		if(gov.id == interaction.user){
-			var otherDebaterName = oppDB.firstName + " " + oppDB.lastName ;
 
-		}else if(opp.id == interaction.user){
-			var otherDebaterName = govDB.firstName + " " + govDB.lastName ;
-		}
 		if(govDB == null && oppDB == null){
 			return interaction.reply({ content: gov.username  + " and " + opp.username + " don't have Ranked PDT accounts", ephemeral: true });
 		}
@@ -110,48 +95,55 @@ module.exports = {
 			{ name: 'Opposition Team', value: oppTeamConfirmationEmbed, inline: false},
 			{ name: 'Winner', value: winnerDeclaration, inline: false},
 		)
+		var uuid = crypto.randomUUID()
+
 		var row = new ActionRowBuilder()
 			.addComponents(
 				new ButtonBuilder()
-					.setCustomId('confirm')
+					.setCustomId('confirm' + uuid)
 					.setLabel('Confirm')
 					.setStyle(ButtonStyle.Primary),
 					new ButtonBuilder()
 
-					.setCustomId('cancel')
+					.setCustomId('cancel' + uuid)
 					.setLabel('Deny')
 					.setStyle(ButtonStyle.Danger),
 			);
 			var greyOut = new ActionRowBuilder()
 			.addComponents(
 				new ButtonBuilder()
-					.setCustomId('confirm')
+					.setCustomId('confirm' + uuid)
 					.setLabel('Confirm')
 					.setStyle(ButtonStyle.Primary)
 					.setDisabled(true),
 					new ButtonBuilder()
 
-					.setCustomId('cancel')
+					.setCustomId('cancel' + uuid)
 					.setLabel('Deny')
 					.setStyle(ButtonStyle.Danger)
 					.setDisabled(true),
 			);
+			var confirmId = "confirm" + uuid
+			var cancelId = "cancel" + uuid
 		 await interaction.reply({embeds: [confirmationEmbed], components: [row]})
-		 interaction.channel.send({content: "<@"+otherDebaterID+"> please confirm or deny the results of this round. If you don't respond within 1 day, the results will be automatically validated."})
+		 interaction.channel.send({content: "Please confirm that these results are accurate."})
 		 var filter = i => {
-			if(i.user.id == otherDebaterID) return true;
+			if(i.customId != confirmId && i.customId != cancelId){
+				return false;
+			}
+			if(i.user.id == interaction.user.id) return true;
 			else {
-			  i.reply({content: "Only " + otherDebaterName + " can confirm or deny this round's results", ephemeral: true});
+			  i.reply({content: "Only " + adminName + " can confirm or deny this round's results", ephemeral: true});
 			  return false;
 			}
 		  }
 		
-		var collector = interaction.channel.createMessageComponentCollector({ filter, time: 86400000 });
+		var collector = interaction.channel.createMessageComponentCollector({ filter, time: 3600000 });
 		
 		collector.on('collect', async i => {
 				await i.update({components: [greyOut] });
-				if(i.customId === 'confirm'){
-					interaction.channel.send({content:"The results of round #"+roundID+" have been confirmed by <@"+otherDebaterID+">"})
+				if(i.customId === confirmId){
+					await interaction.followUp({content:"The results of round #"+roundID+" have been confirmed."})
 					await mongoRounds.insertOne({id: amountOfRounds, displayID: roundID, govDebater: gov.id, oppDebater: opp.id, govVotes: govVotes, oppVotes: oppVotes, resolution: resolution, date: dateFormatted, govElo: R_G,oppElo: R_O,govEloChange: govEloChange, oppEloChange: oppEloChange, winner: winner})
 					await mongoRounds.updateOne({id: "Count"},{$set:{count: newCount}})
 					if(gov_votes > opp_votes){
@@ -189,10 +181,9 @@ module.exports = {
 				)
 					return interaction.channel.send({ embeds: [embed]});
 					
-				}else if(i.customId === "cancel"){
-					return interaction.channel.send({content:"The results of the round reported by <@"+i.user.id+"> have been denied by <@"+otherDebaterID+">"})
+				}else if(i.customId === cancelId){
+					return interaction.followUp({content:"The round reported by <@" + interaction.user.id + "> has been cancelled."})
 				}
-				console.log('HELLO')
 		});
 		
 		collector.on('end', async collected => {
@@ -231,7 +222,7 @@ module.exports = {
 		{ name: 'Opposition Team', value: oppTeamEmbed, inline: false},
 		{ name: 'Winner', value: winnerDeclaration, inline: false},
 	)
-		await interaction.channel.send({content: "<@"+otherDebaterID+"> didn't respond within 1 day, so round #" + roundID+" (reported by <@" +interaction.user.id+ ">) has been automatically validated."})
+		await interaction.channel.send({content: "<@"+interaction.user.id+"> didn't respond within 1 day, so round #" + roundID+" has been automatically validated."})
 		return interaction.channel.send({ embeds: [embed]});
 		
 
