@@ -7,12 +7,10 @@ module.exports = {
 	
 	data: new SlashCommandBuilder()
 		.setName('profile')
-		.setDescription('View a Ranked PDT profile')
+		.setDescription("View a debater's Ranked PDT profile")
 		.addUserOption(option => option.setName('target').setDescription('The user')),
 	async execute(interaction) {
-		if(interaction.channel.id != 1085212287603843185){
-			return interaction.reply({ content: "Commands only work in <#1085212287603843185>", ephemeral: true });
-		}		const target = interaction.options.getUser('target');
+		const target = interaction.options.getUser('target');
 		
 		if(target==null){
 			const results = await mongoUsers.findOne({id: interaction.user.id})

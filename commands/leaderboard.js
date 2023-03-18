@@ -8,12 +8,10 @@ module.exports = {
 	
 	data: new SlashCommandBuilder()
 		.setName('leaderboard')
-		.setDescription('View the leaderboard (sorted by elo)')
+		.setDescription('View the leaderboard (based on elo)')
 		.addIntegerOption(option => option.setName('page').setDescription("The page of the leaderboard that you'd like to view")),
 	async execute(interaction) {
-		if(interaction.channel.id != 1085212287603843185){
-			return interaction.reply({ content: "Commands only work in <#1085212287603843185>", ephemeral: true });
-		}		
+			
 		var leaderboardPage = interaction.options.getInteger('page');
 		const count = await mongoUsers.count();
 		var pages = Math.ceil(count/10)

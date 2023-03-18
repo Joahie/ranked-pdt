@@ -1,56 +1,24 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { EmbedBuilder } = require('discord.js');
-mongoclient = global.mongoclient;
-const mongoUsers = mongoclient.db("RankedPDT").collection("users");
-const mongoRounds = mongoclient.db("RankedPDT").collection("rounds");
 
 module.exports = {
 	
 	data: new SlashCommandBuilder()
 		.setName('help')
-		.setDescription('View the details of a past round'),
+		.setDescription('Displays information about the bot and its commands'),
 	async execute(interaction) {
-		if(interaction.channel.id != 1085212287603843185){
-			return interaction.reply({ content: "Commands only work in <#1085212287603843185>", ephemeral: true });
-		}		
-		var roundID = interaction.options.getInteger('round-id');
-		var results = await mongoRounds.findOne({id: roundID})
-		if(results == null){
-			return interaction.reply({ content: "This round doesn't exist. Try making sure that you inputted the correct ID.", ephemeral: true });
-		}
-		console.log(results.govDebater)
-		var gov = await mongoUsers.findOne({id: results.govDebater})
-		var opp = await mongoUsers.findOne({id: results.oppDebater})
-		var govFullName = gov.firstName + " " + gov.lastName
-		var oppFullName = opp.firstName + " " + opp.lastName
-		var originalGovElo = results.govElo - results.govEloChange;
-		var originalOppElo = results.oppElo - results.oppEloChange;
-		if(results.govEloChange*1 > 0){
-			var govTeamEmbed = "Debater: " + govFullName + " (<@"+results.govDebater+">)\nVotes: " + results.govVotes + "\nElo: +"+Math.floor(results.govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(results.govElo)+"]";
-		}else{
-			var govTeamEmbed = "Debater: " + govFullName + " (<@"+results.govDebater+">)\nVotes: " + results.govVotes + "\nElo: "+Math.floor(results.govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(results.govElo)+"]";
-		}
-		if(results.oppEloChange*1 > 0){
-			var oppTeamEmbed = "Debater: " + oppFullName + " (<@"+results.oppDebater+">)\nVotes: " + results.oppVotes + "\nElo: +"+Math.floor(results.oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(results.oppElo)+"]";
-		}else{
-			var oppTeamEmbed = "Debater: " + oppFullName + " (<@"+results.oppDebater+">)\nVotes: " + results.oppVotes + "\nElo: "+Math.floor(results.oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(results.oppElo)+"]";
-		}
-		if(results.govVotes > results.oppVotes){
-			var winnerDeclaration = govFullName + " (<@" + gov.id+">)"
-		}else{
-			var winnerDeclaration = oppFullName + " (<@" + opp.id+">)"
-		}
+		
 		const embed = new EmbedBuilder()
 
 	.setColor(0x0099FF)
-	.setTitle("Round #" + results.displayID)
-	.setDescription('Resolution: ' + results.resolution)
+	.setTitle("About & Commands")
+	.setDescription('Ranked PDT (Parliamentary Debate Tournament) is an online and informal debate league for parliamentary 1v1s. Debaters start with an elo (point system) of 1000, and gain or lose points by debating. The change in their elo is determined by the elo of their opponent and how many judges voted for them. To view the rules head to <#1085211966131404881>.')
 	.addFields(
-		{ name: 'Government Team', value: govTeamEmbed, inline: false},
-		{ name: 'Opposition Team', value: oppTeamEmbed, inline: false},
-		{ name: 'Winner', value: winnerDeclaration, inline: false},
-		{ name: 'Date', value: results.date, inline: false},
-
+		{ name: '</register:1085225509870379101>', value: "Input your information to create your Ranked PDT account", inline: false},
+		{ name: '</profile:1085225509870379100>', value: "View a debater's Ranked PDT profile (name, elo, record, etc.", inline: false},
+		{ name: '</leaderboard:1085371749018906735>', value: "View the leaderboard (based on elo)", inline: false},
+		{ name: '</round:1085371641044942879>', value: "View the details of a past round", inline: false},
+		{ name: '</update:1085225510327566457>', value: "Report the results of a round so that the bot can update debater's elos and record. You can only use /update for rounds that you debated in. After you use the command, the bot will ask the other debater to confirm the information before updating your profiles.", inline: false},
 	)
 		return interaction.reply({ embeds: [embed] });
 	},

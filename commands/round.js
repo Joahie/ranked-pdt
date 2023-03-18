@@ -11,9 +11,6 @@ module.exports = {
 		.setDescription('View the details of a past round')
 		.addIntegerOption(option => option.setName('round-id').setDescription("The ID of the round that you'd like to view").setRequired(true)),
 	async execute(interaction) {
-		if(interaction.channel.id != 1085212287603843185){
-			return interaction.reply({ content: "Commands only work in <#1085212287603843185>", ephemeral: true });
-		}		
 		var roundID = interaction.options.getInteger('round-id');
 		var results = await mongoRounds.findOne({id: roundID})
 		if(results == null){
@@ -22,6 +19,15 @@ module.exports = {
 		console.log(results.govDebater)
 		var gov = await mongoUsers.findOne({id: results.govDebater})
 		var opp = await mongoUsers.findOne({id: results.oppDebater})
+		if(opp == null && gov == null){
+			return interaction.reply({ content: "Neither debaters have Ranked PDT accounts anymore.", ephemeral: true });
+		}
+		if(gov == null){
+			return interaction.reply({ content: "The government debater no longer has a Ranked PDT account.", ephemeral: true });
+		}
+		if(opp == null){
+			return interaction.reply({ content: "The opposition debater no longer has a Ranked PDT account.", ephemeral: true });
+		}
 		var govFullName = gov.firstName + " " + gov.lastName
 		var oppFullName = opp.firstName + " " + opp.lastName
 		var originalGovElo = results.govElo - results.govEloChange;

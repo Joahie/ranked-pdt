@@ -3,19 +3,22 @@ const {  ActionRowBuilder, ButtonBuilder, ButtonStyle, Events , EmbedBuilder } =
 mongoclient = global.mongoclient;
 const mongoUsers = mongoclient.db("RankedPDT").collection("users");
 const mongoRounds = mongoclient.db("RankedPDT").collection("rounds");
-const crypto = require('crypto');
+
 module.exports = {
 	
 	data: new SlashCommandBuilder()
-		.setName('update')
+		.setName('admin-update')
 		.setDescription('Report a round that you debated in/judged to update elo')
 		.addUserOption(option => option.setName('government-team').setDescription('Debater on the government team').setRequired(true))
 		.addUserOption(option => option.setName('opposition-team').setDescription('Debater on the opposition team').setRequired(true))
 		.addIntegerOption(option => option.setName('government-votes').setDescription('Number of judges who voted government').setRequired(true))
 		.addIntegerOption(option => option.setName('opposition-votes').setDescription('Number of judges who voted opposition').setRequired(true))
-		.addStringOption(option => option.setName('resolution').setDescription('The resolution that was debated').setRequired(true)),
+		.addStringOption(option => option.setName('resolution').setDescription('The resolution that was debated').setRequired(true))
+		.setDefaultMemberPermissions(0),
 	async execute(interaction) {
-		
+		if(interaction.channel.id != 1085212287603843185){
+			return interaction.reply({ content: "Commands only work in <#1085212287603843185>", ephemeral: true });
+		}
 		var gov = interaction.options.getUser('government-team');
 		var opp = interaction.options.getUser('opposition-team');
 		var govVotes = interaction.options.getInteger('government-votes');
@@ -35,7 +38,12 @@ module.exports = {
 		}
 		var govDB = await mongoUsers.findOne({id: gov.id})
 		var oppDB = await mongoUsers.findOne({id: opp.id})
+		if(gov.id == interaction.user){
+			var otherDebaterName = oppDB.firstName + " " + oppDB.lastName ;
 
+		}else if(opp.id == interaction.user){
+			var otherDebaterName = govDB.firstName + " " + govDB.lastName ;
+		}
 		if(govDB == null && oppDB == null){
 			return interaction.reply({ content: gov.username  + " and " + opp.username + " don't have Ranked PDT accounts", ephemeral: true });
 		}
@@ -44,12 +52,6 @@ module.exports = {
 		}
 		if(oppDB == null){
 			return interaction.reply({ content: opp.username + " doesn't have a Ranked PDT account", ephemeral: true });
-		}
-		if(gov.id == interaction.user){
-			var otherDebaterName = oppDB.firstName + " " + oppDB.lastName ;
-
-		}else if(opp.id == interaction.user){
-			var otherDebaterName = govDB.firstName + " " + govDB.lastName ;
 		}
 		if(govVotes < 0 || oppVotes < 0){
 			return interaction.reply({ content: "You can't have a negative number of votes for a team", ephemeral: true });
@@ -108,42 +110,35 @@ module.exports = {
 			{ name: 'Opposition Team', value: oppTeamConfirmationEmbed, inline: false},
 			{ name: 'Winner', value: winnerDeclaration, inline: false},
 		)
-		var uuid = crypto.randomUUID()
-
 		var row = new ActionRowBuilder()
 			.addComponents(
 				new ButtonBuilder()
-					.setCustomId('confirm' + uuid)
+					.setCustomId('confirm')
 					.setLabel('Confirm')
 					.setStyle(ButtonStyle.Primary),
 					new ButtonBuilder()
 
-					.setCustomId('cancel' + uuid)
+					.setCustomId('cancel')
 					.setLabel('Deny')
 					.setStyle(ButtonStyle.Danger),
 			);
 			var greyOut = new ActionRowBuilder()
 			.addComponents(
 				new ButtonBuilder()
-					.setCustomId('confirm' + uuid)
+					.setCustomId('confirm')
 					.setLabel('Confirm')
 					.setStyle(ButtonStyle.Primary)
 					.setDisabled(true),
 					new ButtonBuilder()
 
-					.setCustomId('cancel' + uuid)
+					.setCustomId('cancel')
 					.setLabel('Deny')
 					.setStyle(ButtonStyle.Danger)
 					.setDisabled(true),
 			);
-			var confirmId = "confirm" + uuid
-			var cancelId = "cancel" + uuid
 		 await interaction.reply({embeds: [confirmationEmbed], components: [row]})
 		 interaction.channel.send({content: "<@"+otherDebaterID+"> please confirm or deny the results of this round. If you don't respond within 1 day, the results will be automatically validated."})
 		 var filter = i => {
-			if(i.customId != confirmId && i.customId != cancelId){
-				return false;
-			}
 			if(i.user.id == otherDebaterID) return true;
 			else {
 			  i.reply({content: "Only " + otherDebaterName + " can confirm or deny this round's results", ephemeral: true});
@@ -155,8 +150,8 @@ module.exports = {
 		
 		collector.on('collect', async i => {
 				await i.update({components: [greyOut] });
-				if(i.customId === confirmId){
-					await interaction.followUp({content:"The results of round #"+roundID+" have been confirmed by <@"+otherDebaterID+">"})
+				if(i.customId === 'confirm'){
+					interaction.channel.send({content:"The results of round #"+roundID+" have been confirmed by <@"+otherDebaterID+">"})
 					await mongoRounds.insertOne({id: amountOfRounds, displayID: roundID, govDebater: gov.id, oppDebater: opp.id, govVotes: govVotes, oppVotes: oppVotes, resolution: resolution, date: dateFormatted, govElo: R_G,oppElo: R_O,govEloChange: govEloChange, oppEloChange: oppEloChange, winner: winner})
 					await mongoRounds.updateOne({id: "Count"},{$set:{count: newCount}})
 					if(gov_votes > opp_votes){
@@ -194,9 +189,10 @@ module.exports = {
 				)
 					return interaction.channel.send({ embeds: [embed]});
 					
-				}else if(i.customId === cancelId){
-					return interaction.followUp({content:"The results of the round reported by <@"+i.user.id+"> have been denied by <@"+otherDebaterID+">"})
+				}else if(i.customId === "cancel"){
+					return interaction.channel.send({content:"The results of the round reported by <@"+i.user.id+"> have been denied by <@"+otherDebaterID+">"})
 				}
+				console.log('HELLO')
 		});
 		
 		collector.on('end', async collected => {

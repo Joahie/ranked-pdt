@@ -1,27 +1,65 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { EmbedBuilder } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle,  EmbedBuilder } = require('discord.js');
 mongoclient = global.mongoclient;
 const mongoUsers = mongoclient.db("RankedPDT").collection("users");
 const mongoRounds = mongoclient.db("RankedPDT").collection("rounds");
+const crypto = require('crypto');
 
 module.exports = {
 	
 	data: new SlashCommandBuilder()
 		.setName('delete-round')
-		.setDescription('View the details of a past round')
-		.addIntegerOption(option => option.setName('round-id').setDescription("The ID of the round that you'd like to view").setRequired(true)),
+		.setDescription('Delete a round')
+		.addIntegerOption(option => option.setName('round-id').setDescription("The ID of the round that you'd like to delete").setRequired(true))
+		.setDefaultMemberPermissions(0),
 	async execute(interaction) {
-		if(interaction.channel.id != 1085212287603843185){
-			return interaction.reply({ content: "Commands only work in <#1085212287603843185>", ephemeral: true });
-		}		
+		
+		var uuid = crypto.randomUUID()
+		
 		var roundID = interaction.options.getInteger('round-id');
 		var results = await mongoRounds.findOne({id: roundID})
+		var displayID = results.displayID
 		if(results == null){
 			return interaction.reply({ content: "This round doesn't exist. Try making sure that you inputted the correct ID.", ephemeral: true });
 		}
-		console.log(results.govDebater)
+
+		var row = new ActionRowBuilder()
+			.addComponents(
+				new ButtonBuilder()
+					.setCustomId('delete' + uuid)
+					.setLabel('Delete')
+					.setStyle(ButtonStyle.Danger),
+					new ButtonBuilder()
+
+					.setCustomId('cancel' + uuid)
+					.setLabel('Cancel')
+					.setStyle(ButtonStyle.Secondary),
+			);
+			var greyOut = new ActionRowBuilder()
+			.addComponents(
+				new ButtonBuilder()
+					.setCustomId('delete' + uuid)
+					.setLabel('Delete')
+					.setStyle(ButtonStyle.Danger)
+					.setDisabled(true),
+					new ButtonBuilder()
+
+					.setCustomId('cancel' + uuid)
+					.setLabel('Cancel')
+					.setStyle(ButtonStyle.Secondary)
+					.setDisabled(true),
+			);
 		var gov = await mongoUsers.findOne({id: results.govDebater})
 		var opp = await mongoUsers.findOne({id: results.oppDebater})
+		if(opp == null && gov == null){
+			return interaction.reply({ content: "Neither debaters have Ranked PDT accounts anymore.", ephemeral: true });
+		}
+		if(gov == null){
+			return interaction.reply({ content: "The government debater no longer has a Ranked PDT account.", ephemeral: true });
+		}
+		if(opp == null){
+			return interaction.reply({ content: "The opposition debater no longer has a Ranked PDT account.", ephemeral: true });
+		}
 		var govFullName = gov.firstName + " " + gov.lastName
 		var oppFullName = opp.firstName + " " + opp.lastName
 		var originalGovElo = results.govElo - results.govEloChange;
@@ -41,8 +79,8 @@ module.exports = {
 		}else{
 			var winnerDeclaration = oppFullName + " (<@" + opp.id+">)"
 		}
-		const embed = new EmbedBuilder()
 
+const embed = new EmbedBuilder()
 	.setColor(0x0099FF)
 	.setTitle("Round #" + results.displayID)
 	.setDescription('Resolution: ' + results.resolution)
@@ -53,6 +91,59 @@ module.exports = {
 		{ name: 'Date', value: results.date, inline: false},
 
 	)
-		return interaction.reply({ embeds: [embed] });
+	await interaction.reply({ embeds: [embed], components:[row] });
+	
+	var filter = i => {
+		if(i.customId != deleteId && i.customId != cancelId){
+			return false;
+		}
+	   if(i.user.id == interaction.user.id) return true;
+	   else {
+		 i.reply({content: "You don't have permission to use this command", ephemeral: true});
+		 return false;
+	   }
+	 }
+var deleteId = "delete" +  uuid;
+var cancelId = "cancel" +  uuid;
+   var collector = interaction.channel.createMessageComponentCollector({ filter, time: 3600000 });
+   collector.on('collect', async i => {	
+		   await i.update({components: [greyOut] });
+		   if(i.customId == deleteId){
+				var findRound = await mongoRounds.findOne({id: roundID});
+				if(findRound == null){
+					return interaction.followUp({content: "Round #" + displayID + " has already been deleted.", ephemeral: true})
+				}
+				var govProfile = await mongoUsers.findOne({id: findRound.govDebater});
+				var oppProfile = await mongoUsers.findOne({id: findRound.oppDebater});
+				var newGovElo = govProfile.elo - findRound.govEloChange;
+				var newOppElo = oppProfile.elo - findRound.oppEloChange;
+				if(findRound.winner == results.govDebater){
+					var newGovWins = govProfile.wins - 1;
+					var newGovLosses = govProfile.losses;
+					var newOppWins = oppProfile.wins;
+					var newOppLosses = oppProfile.losses - 1;
+				}else{
+					var newGovWins = govProfile.wins;
+					var newGovLosses = govProfile.losses - 1;
+					var newOppWins = oppProfile.wins - 1;
+					var newOppLosses = oppProfile.losses;
+				}
+				await mongoUsers.updateOne({id: findRound.govDebater}, {$set:{elo: newGovElo, wins: newGovWins,losses:newGovLosses}});
+				await mongoUsers.updateOne({id: findRound.oppDebater}, {$set:{elo: newOppElo, wins: newOppWins,losses:newOppLosses}});		
+				await mongoRounds.deleteOne({id: roundID});		
+				return interaction.followUp({content:"The results of round #"+displayID+" have been deleted"});
+		   }else if(i.customId == cancelId){
+			   return interaction.followUp({content:"The request to delete round #"+displayID+" has been cancelled"});
+		   }
+   });
+   collector.on('end', async collected => {
+
+	   if(collected.size == 0){
+		   await interaction.editReply({components: [greyOut] });
+		   return interaction.followUp({content:"The request to delete round #"+displayID+" has timed out and been cancelled"});  
+
+	   }
+   });   
+		
 	},
 };

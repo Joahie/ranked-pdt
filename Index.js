@@ -1,6 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client, Collection, Events, GatewayIntentBits} = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits,ActivityType} = require('discord.js');
 const { MongoClient } = require('mongodb')
 const env = require('dotenv').config()
 const URI = process.env.URI
@@ -21,6 +21,7 @@ for (const file of commandFiles) {
 
 client.once(Events.ClientReady, () => {
 	console.log('Ready!');
+	client.user.setActivity(' for /help', { type: ActivityType.Watching });
 });
 client.on('guildMemberAdd', async member => {
 	const mongoUsers = mongoclient.db("RankedPDT").collection("users");
@@ -31,10 +32,11 @@ client.on('guildMemberAdd', async member => {
 	}
 });
 client.on(Events.InteractionCreate, async interaction => {
+	
 	if (!interaction.isChatInputCommand()) return;
-});
-client.on(Events.InteractionCreate, async interaction => {
-	if (!interaction.isChatInputCommand()) return;
+	if(interaction.channel.id != 1085212287603843185){
+		return interaction.reply({ content: "Commands only work in <#1085212287603843185>", ephemeral: true });
+	}
 	const command = client.commands.get(interaction.commandName);
 
 	if (!command) return;
