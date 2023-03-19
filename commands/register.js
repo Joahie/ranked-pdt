@@ -100,7 +100,7 @@ module.exports = {
 	
 		var role= interaction.member.guild.roles.cache.find(role => role.name === "Debater");
 		interaction.member.roles.add(role);
-		interaction.channel.send({ embeds: [embed] });
+		await interaction.channel.send({ embeds: [embed] });
 		return interaction.reply({ content: "Your profile has been successfully created!", ephemeral: false });
 	},
 };

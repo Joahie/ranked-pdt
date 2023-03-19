@@ -13,6 +13,9 @@ module.exports = {
 	async execute(interaction) {
 			
 		var leaderboardPage = interaction.options.getInteger('page');
+		if(leaderboardPage == null){
+			leaderboardPage = 1;
+		}
 		const count = await mongoUsers.count();
 		var pages = Math.ceil(count/10)
 		if(pages < leaderboardPage){ 
@@ -23,7 +26,6 @@ module.exports = {
 
 			}
 		}
-
 		const results = await mongoUsers.find({}).toArray();
 		var eloArray = [];
 		var nameArray = [];
@@ -69,7 +71,6 @@ module.exports = {
 				[...sortedLeftArrays[2], arr3[pivotIndex], ...sortedRightArrays[2]]
 			];
 		}
-
 		sortedArrays = quickSortThreeArraysDescending(eloArray, idArray, nameArray)
 		eloArray = sortedArrays[0]
 		idArray = sortedArrays[1]
@@ -78,7 +79,7 @@ module.exports = {
 		var embededContent = ""
 		var prevRanking;
 		var prevElo;
-
+		var contentArray = []
 		for(i = 1; i <= eloArray.length; i++){
 			if(i == 1){
 				line = i + ". " +Math.floor(eloArray[i-1]) + " - " + nameArray[i-1] + " (<@" + idArray[i-1] + ">)"
@@ -98,13 +99,21 @@ module.exports = {
 				}
 			}
 			prevElo = eloArray[i-1]	
-
-			if((i)== eloArray.length){
-				embededContent = embededContent+ line;
+			contentArray.push(line)
+		}
+		var embededContent = ""
+		var startingIndex = 10*leaderboardPage-10;
+		for(a = startingIndex; a < 10*leaderboardPage; a++){
+			if(contentArray[a] == null){
+				break;
+			}
+			if(contentArray[a+1] == null || a == (startingIndex+9)){
+				embededContent += contentArray[a];
 			}else{
-				embededContent = embededContent+  line + "\n";
+				embededContent += contentArray[a] + "\n";
 			}
 		}
+
 		if(ranking){
 			var rankString = "Your position: #" + ranking + " - "
 		}else{

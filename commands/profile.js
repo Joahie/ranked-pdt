@@ -13,6 +13,7 @@ module.exports = {
 		const target = interaction.options.getUser('target');
 		
 		if(target==null){
+			console.log("No id")
 			const results = await mongoUsers.findOne({id: interaction.user.id})
 			if(results == null){
 				return interaction.reply({ content: "You don't have a Ranked PDT account", ephemeral: true });
@@ -69,16 +70,22 @@ module.exports = {
 
 		for(i = 1; i <= eloArray.length; i++){
 			if(i == 1){
+				if(interaction.user.id == eloArray[i-1]){
+					var ranking = 1;
+					return;
+				}
 				prevRanking = i;
 			}else{
 				if(prevElo == eloArray[i-1]){
 					if(interaction.user.id == idArray[i-1]){
 						var ranking = prevRanking;
+						return;
 					}
 				}else{
 					prevRanking = i;
 					if(interaction.user.id == idArray[i-1]){
 						var ranking = i;
+						return;
 					}
 				}
 			}
@@ -86,6 +93,7 @@ module.exports = {
 		}
 
 	}else{
+			console.log("PAG")
 			const results = await mongoUsers.findOne({id: target.id})
 			if(results == null){
 				return interaction.reply({ content: target.username  + " doesn't have a Ranked PDT account", ephemeral: true });
@@ -138,16 +146,26 @@ module.exports = {
 			quickSort(eloArray, idArray)
 			var prevRanking;
 			var prevElo;
-	
+			console.log(eloArray);
+			console.log(idArray);
 			for(i = 1; i <= eloArray.length; i++){
 				if(i == 1){
+					
+					if( target.id == idArray[i-1]){
+						var ranking = 1;
+					}
+					console.log(i + "1")
 					prevRanking = i;
 				}else{
 					if(prevElo == eloArray[i-1]){
+						console.log(i + "2")
+
 						if( target.id == idArray[i-1]){
 							var ranking = prevRanking;
 						}
 					}else{
+						console.log(i + "3")
+
 						prevRanking = i;
 						if( target.id == idArray[i-1]){
 							var ranking = i;
@@ -156,6 +174,7 @@ module.exports = {
 				}
 				prevElo = eloArray[i-1]	
 			}
+			console.log(ranking)
 		}
 		ranking = "#"+ ranking
 		const embed = new EmbedBuilder()

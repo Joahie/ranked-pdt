@@ -36,7 +36,7 @@ try{
 		client.on(Events.InteractionCreate, async interaction => {
 			
 			if (!interaction.isChatInputCommand()) return;
-			if(interaction.channel.id != 1085212287603843185){
+			if(interaction.channel.id != 1085212287603843185 && interaction.user.id != 681913214744789118){
 				return interaction.reply({ content: "Commands only work in <#1085212287603843185>", ephemeral: true });
 			}
 			const command = client.commands.get(interaction.commandName);
