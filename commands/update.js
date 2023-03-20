@@ -82,14 +82,19 @@ module.exports = {
 			var winner = govDB.id;
 			var winnerDeclaration = govFullName + " (<@" + gov.id+">)"
 		}else{
-			var S_O = Math.pow(1.1, net_votes) - 0.1
+			var S_O = Math.pow(1.1, -net_votes) - 0.1
 			var S_G = net_votes * 0.05
 			var winner = oppDB.id;
 			var winnerDeclaration = oppFullName + " (<@" + opp.id+">)"
 		}
 		R_G = R_G + 80 * (S_G - E_G) 
 		R_O = R_O + 80 * (S_O - E_O)
-
+		if(R_G < 0){
+			R_G = 0;
+		}
+		if(R_O < 0){
+			R_O = 0;
+		}
 		var govEloChange =R_G- govDB.elo*1
 		var oppEloChange = R_O - oppDB.elo*1
 		var originalGovElo = govDB.elo;

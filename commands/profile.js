@@ -72,20 +72,17 @@ module.exports = {
 			if(i == 1){
 				if(interaction.user.id == eloArray[i-1]){
 					var ranking = 1;
-					return;
 				}
 				prevRanking = i;
 			}else{
 				if(prevElo == eloArray[i-1]){
 					if(interaction.user.id == idArray[i-1]){
 						var ranking = prevRanking;
-						return;
 					}
 				}else{
 					prevRanking = i;
 					if(interaction.user.id == idArray[i-1]){
 						var ranking = i;
-						return;
 					}
 				}
 			}
