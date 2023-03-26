@@ -22,6 +22,7 @@ module.exports = {
 		var resolution = interaction.options.getString('resolution');
 		var totalVotes = govVotes + oppVotes;
 		var userLookup = await mongoUsers.findOne({id: interaction.user.id})
+		console.log(userLookup)
 		var adminName = userLookup.firstName + " " + userLookup.lastName;
 		if(gov.id == opp.id){
 			return interaction.reply({ content: "The government and opposition teams cannot be the same user", ephemeral: true });
@@ -138,7 +139,7 @@ module.exports = {
 			}
 		  }
 		
-		var collector = interaction.channel.createMessageComponentCollector({ filter, time: 3600000 });
+		var collector = interaction.channel.createMessageComponentCollector({ filter, time: 900000 });
 		
 		collector.on('collect', async i => {
 				await i.update({components: [greyOut] });
@@ -222,7 +223,7 @@ module.exports = {
 		{ name: 'Opposition Team', value: oppTeamEmbed, inline: false},
 		{ name: 'Winner', value: winnerDeclaration, inline: false},
 	)
-		await interaction.channel.send({content: "<@"+interaction.user.id+"> didn't respond within 1 day, so round #" + roundID+" has been automatically validated."})
+		await interaction.channel.send({content: "<@"+interaction.user.id+"> didn't respond within 15 minutes, so round #" + roundID+" has been automatically validated."})
 		return interaction.channel.send({ embeds: [embed]});
 		
 

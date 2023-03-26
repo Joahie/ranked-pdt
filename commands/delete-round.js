@@ -105,7 +105,7 @@ const embed = new EmbedBuilder()
 	 }
 var deleteId = "delete" +  uuid;
 var cancelId = "cancel" +  uuid;
-   var collector = interaction.channel.createMessageComponentCollector({ filter, time: 3600000 });
+   var collector = interaction.channel.createMessageComponentCollector({ filter, time: 900000 });
    collector.on('collect', async i => {	
 		   await i.update({components: [greyOut] });
 		   if(i.customId == deleteId){
@@ -117,7 +117,7 @@ var cancelId = "cancel" +  uuid;
 				var oppProfile = await mongoUsers.findOne({id: findRound.oppDebater});
 				var newGovElo = govProfile.elo - findRound.govEloChange;
 				var newOppElo = oppProfile.elo - findRound.oppEloChange;
-				if(findRound.winner == results.govDebater){
+				if(findRound.winner == findRound.govDebater){
 					var newGovWins = govProfile.wins - 1;
 					var newGovLosses = govProfile.losses;
 					var newOppWins = oppProfile.wins;

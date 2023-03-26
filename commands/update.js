@@ -144,7 +144,7 @@ module.exports = {
 			var confirmId = "confirm" + uuid
 			var cancelId = "cancel" + uuid
 		 await interaction.reply({embeds: [confirmationEmbed], components: [row]})
-		 interaction.channel.send({content: "<@"+otherDebaterID+"> please confirm or deny the results of this round. If you don't respond within 1 day, the results will be automatically validated."})
+		 interaction.channel.send({content: "<@"+otherDebaterID+"> please confirm or deny the results of this round. If you don't respond within 15 minutes, the results will be automatically validated."})
 		 var filter = i => {
 			if(i.customId != confirmId && i.customId != cancelId){
 				return false;
@@ -156,7 +156,7 @@ module.exports = {
 			}
 		  }
 		
-		var collector = interaction.channel.createMessageComponentCollector({ filter, time: 86400000 });
+		var collector = interaction.channel.createMessageComponentCollector({ filter, time: 890000 });
 		
 		collector.on('collect', async i => {
 				await i.update({components: [greyOut] });
@@ -240,7 +240,7 @@ module.exports = {
 		{ name: 'Opposition Team', value: oppTeamEmbed, inline: false},
 		{ name: 'Winner', value: winnerDeclaration, inline: false},
 	)
-		await interaction.channel.send({content: "<@"+otherDebaterID+"> didn't respond within 1 day, so round #" + roundID+" (reported by <@" +interaction.user.id+ ">) has been automatically validated."})
+		await interaction.channel.send({content: "<@"+otherDebaterID+"> didn't respond within 15 minutes, so round #" + roundID+" (reported by <@" +interaction.user.id+ ">) has been automatically validated."})
 		return interaction.channel.send({ embeds: [embed]});
 		
 

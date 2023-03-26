@@ -10,7 +10,6 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBit
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-try{
 
 	mongoclient.connect(async function (err, mongoclient) {
 		global.mongoclient = mongoclient;
@@ -26,6 +25,7 @@ try{
 			client.user.setActivity(' for /help', { type: ActivityType.Watching });
 		});
 		client.on('guildMemberAdd', async member => {
+			member.send("Welcome to the Ranked PDT server! To create an account, head to <#1085212287603843185> and use the </register:1085225509870379101> command. To see the rest of my commands, use the </help:1085953726705045677> command.");
 			const mongoUsers = mongoclient.db("RankedPDT").collection("users");
 			var results = await mongoUsers.findOne({id: member.id});
 			if(results != null){
@@ -56,8 +56,4 @@ try{
 		});
 		client.login(TOKEN);
 		})
-		
-		
-}catch{
-	console.log(err)
-}
+	
