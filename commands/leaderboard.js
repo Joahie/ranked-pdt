@@ -11,7 +11,7 @@ module.exports = {
 		.setDescription('View the leaderboard (based on elo)')
 		.addIntegerOption(option => option.setName('page').setDescription("The page of the leaderboard that you'd like to view")),
 	async execute(interaction) {
-			
+			try{
 		var leaderboardPage = interaction.options.getInteger('page');
 		if(leaderboardPage == null){
 			leaderboardPage = 1;
@@ -128,6 +128,18 @@ module.exports = {
 	.setDescription(embededContent)
 	.setFooter({ text: rankString + 'Page ' + leaderboardPage + " of " + pages});
 		return interaction.reply({ embeds: [embed] });
+	} catch (error) {
+		console.error(error);
+var today = new Date();
+var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+var dateTime = date+' '+time;
+
+console.log("Date: " + dateTime)
+console.log("User ID:" + interaction.user.id)
+				  return interaction.reply({ content: 'There was an error while executing this command!'});
+
+}
 	},
 
 };

@@ -11,6 +11,7 @@ module.exports = {
 		.addIntegerOption(option => option.setName('government-votes').setDescription('Number of judges who voted government').setRequired(true))
 		.addIntegerOption(option => option.setName('opposition-votes').setDescription('Number of judges who voted opposition').setRequired(true)),
 	async execute(interaction) {
+		try{
 		var gov = interaction.options.getUser('government-team');
 		var opp = interaction.options.getUser('opposition-team');
 		var govVotes = interaction.options.getInteger('government-votes');
@@ -97,6 +98,17 @@ module.exports = {
 		{ name: 'Winner', value: winnerDeclaration, inline: false},
 	)
 		return interaction.reply({ embeds: [embed]});		
-	
+	} catch (error) {
+		console.error(error);
+var today = new Date();
+var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+var dateTime = date+' '+time;
+
+console.log("Date: " + dateTime)
+console.log("User ID:" + interaction.user.id)
+				  return interaction.reply({ content: 'There was an error while executing this command!'});
+
+}
 	},
 };

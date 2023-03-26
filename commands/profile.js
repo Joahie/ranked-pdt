@@ -10,6 +10,7 @@ module.exports = {
 		.setDescription("View a debater's Ranked PDT profile")
 		.addUserOption(option => option.setName('target').setDescription('The user')),
 	async execute(interaction) {
+		try{
 		const target = interaction.options.getUser('target');
 		
 		if(target==null){
@@ -187,5 +188,17 @@ module.exports = {
 
 	)
 		return interaction.reply({ embeds: [embed] });
+	} catch (error) {
+		console.error(error);
+var today = new Date();
+var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+var dateTime = date+' '+time;
+
+console.log("Date: " + dateTime)
+console.log("User ID:" + interaction.user.id)
+				  return interaction.reply({ content: 'There was an error while executing this command!'});
+
+}
 	},
 };

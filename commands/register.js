@@ -13,6 +13,7 @@ module.exports = {
 		.addStringOption(option => option.setName('club').setDescription('Debate club for profile').setRequired(true))
 		.addStringOption(option => option.setName('state').setDescription('State for profile').setRequired(true)),
 	async execute(interaction) {
+		try{
 		
 		const results = await mongoUsers.findOne({id: interaction.user.id})
 		if(results != null){
@@ -102,5 +103,17 @@ module.exports = {
 		interaction.member.roles.add(role);
 		await interaction.channel.send({ embeds: [embed] });
 		return interaction.reply({ content: "Your profile has been successfully created!", ephemeral: false });
+	} catch (error) {
+		console.error(error);
+var today = new Date();
+var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+var dateTime = date+' '+time;
+
+console.log("Date: " + dateTime)
+console.log("User ID:" + interaction.user.id)
+				  return interaction.reply({ content: 'There was an error while executing this command!'});
+
+}
 	},
 };

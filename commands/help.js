@@ -7,7 +7,7 @@ module.exports = {
 		.setName('help')
 		.setDescription('Displays information about the bot and its commands'),
 	async execute(interaction) {
-		
+		try{
 		const embed = new EmbedBuilder()
 
 	.setColor(0x0099FF)
@@ -22,5 +22,17 @@ module.exports = {
 		{ name: '</update:1085225510327566457>', value: "Report the results of a round so that the bot can update debater's elos and record. You can only use /update for rounds that you debated in. After you use the command, the bot will ask the other debater to confirm the information before updating your profiles.", inline: false},
 	)
 		return interaction.reply({ embeds: [embed] });
+	} catch (error) {
+		console.error(error);
+var today = new Date();
+var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+var dateTime = date+' '+time;
+
+console.log("Date: " + dateTime)
+console.log("User ID:" + interaction.user.id)
+				  return interaction.reply({ content: 'There was an error while executing this command!'});
+
+}
 	},
 };

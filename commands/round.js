@@ -11,6 +11,7 @@ module.exports = {
 		.setDescription('View the details of a past round')
 		.addIntegerOption(option => option.setName('round-id').setDescription("The ID of the round that you'd like to view").setRequired(true)),
 	async execute(interaction) {
+		try{
 		var roundID = interaction.options.getInteger('round-id');
 		var results = await mongoRounds.findOne({id: roundID})
 		if(results == null){
@@ -60,5 +61,17 @@ module.exports = {
 
 	)
 		return interaction.reply({ embeds: [embed] });
+	} catch (error) {
+		console.error(error);
+var today = new Date();
+var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+var dateTime = date+' '+time;
+
+console.log("Date: " + dateTime)
+console.log("User ID:" + interaction.user.id)
+				  return interaction.reply({ content: 'There was an error while executing this command!'});
+
+}
 	},
 };

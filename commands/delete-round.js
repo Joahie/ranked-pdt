@@ -13,7 +13,7 @@ module.exports = {
 		.addIntegerOption(option => option.setName('round-id').setDescription("The ID of the round that you'd like to delete").setRequired(true))
 		.setDefaultMemberPermissions(0),
 	async execute(interaction) {
-		
+		try{
 		var uuid = crypto.randomUUID()
 		
 		var roundID = interaction.options.getInteger('round-id');
@@ -144,6 +144,17 @@ var cancelId = "cancel" +  uuid;
 
 	   }
    });   
-		
+} catch (error) {
+	console.error(error);
+var today = new Date();
+var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+var dateTime = date+' '+time;
+
+console.log("Date: " + dateTime)
+console.log("User ID:" + interaction.user.id)
+			  return interaction.reply({ content: 'There was an error while executing this command!'});
+
+}
 	},
 };
