@@ -27,7 +27,7 @@ module.exports = {
 		const d = new Date();
 		const month = d.getMonth() + 1
 		const dateFormatted = month + "/" + d.getDate() + "/" + d.getFullYear();
-		await mongoUsers.insertOne({id: interaction.user.id, firstName: firstName, lastName: lastName, club: club, state: state, dateJoined: dateFormatted, elo: 1000, wins: 0, losses: 0})
+		await mongoUsers.insertOne({id: interaction.user.id, firstName: firstName, lastName: lastName, club: club, state: state, dateJoined: dateFormatted, elo: 1000, wins: 0, losses: 0, eloBoosts: 0})
 		const results1 = await mongoUsers.find({}).toArray();
 		var eloArray = [];
 		var idArray = [];
@@ -93,7 +93,7 @@ module.exports = {
 		{ name: 'Elo', value: '1000', inline: true},
 		{ name: 'Ranking', value: ranking, inline: true },
 		{ name: 'Record', value: "0-0", inline: true },
-
+		{ name: 'Elo Boosts (1.2x)', value: "0", inline: true },
 		{ name: 'Club', value: club, inline: true },
 		{ name: 'State', value: state, inline: true },
 		{ name: 'Date joined', value: dateFormatted, inline: true },

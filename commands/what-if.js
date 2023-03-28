@@ -52,6 +52,7 @@ module.exports = {
 		console.log(E_O)
 		var net_votes = gov_votes - opp_votes
 		if (net_votes > 0){
+			var govWon = true;
 			var S_G = Math.pow(1.1, net_votes) - 0.1
 			var S_O = net_votes * -0.05
 			var winner = govDB.id;
@@ -62,10 +63,28 @@ module.exports = {
 			var winner = oppDB.id;
 			var winnerDeclaration = oppFullName + " (<@" + opp.id+">)"
 		}
-		R_G = R_G + 80 * (S_G - E_G) 
-		R_O = R_O + 80 * (S_O - E_O)
-		console.log(R_G)
-		console.log(R_O)
+		if(govDB.eloBoosts > 0){
+			if(govWon){
+				R_G = R_G + 1.2 * 80 * (S_G - E_G) 
+			}else{
+				R_G = R_G + 80 * (S_G - E_G) 
+			}
+			var govEloBoost = "\n Elo boost: 1.2x"
+		}else{
+			R_G = R_G + 80 * (S_G - E_G)
+			var govEloBoost = "\n Elo boost: None"
+		}
+		if(oppDB.eloBoosts > 0){
+			if(!govWon){
+				R_O = R_O + 1.2 * 80 * (S_O - E_O) 
+			}else{
+				R_O = R_O + 80 * (S_O - E_O) 
+			}
+			var oppEloBoost = "\n Elo boost: 1.2x"
+		}else{
+			R_O = R_O + 80 * (S_O - E_O)
+			var oppEloBoost = "\n Elo boost: None"
+		}
 		if(R_G < 0){
 			R_G = 0;
 		}
@@ -78,14 +97,14 @@ module.exports = {
 		var originalOppElo = oppDB.elo;
 
 		if(govEloChange > 0){
-			var govTeamEmbed = "Debater: " + govFullName + " (<@"+gov.id+">)\nVotes: " + govVotes + "\nElo: +"+Math.floor(govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(R_G)+"]";
+			var govTeamEmbed = "Debater: " + govFullName + " (<@"+gov.id+">)\nVotes: " + govVotes + "\nElo: +"+Math.floor(govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(R_G)+"]" + govEloBoost;
 		}else{
-			var govTeamEmbed = "Debater: " + govFullName + " (<@"+gov.id+">)\nVotes: " + govVotes + "\nElo: "+Math.floor(govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(R_G)+"]";
+			var govTeamEmbed = "Debater: " + govFullName + " (<@"+gov.id+">)\nVotes: " + govVotes + "\nElo: "+Math.floor(govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(R_G)+"]" + govEloBoost;
 		}
 		if(oppEloChange > 0){
-			var oppTeamEmbed = "Debater: " + oppFullName + "(<@"+opp.id+">)\nVotes: " + oppVotes + "\nElo: +"+Math.floor(oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(R_O)+"]";
+			var oppTeamEmbed = "Debater: " + oppFullName + " (<@"+opp.id+">)\nVotes: " + oppVotes + "\nElo: +"+Math.floor(oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(R_O)+"]" + oppEloBoost;
 		}else{
-			var oppTeamEmbed = "Debater: " + oppFullName + "(<@"+opp.id+">)\nVotes: " + oppVotes + "\nElo: "+Math.floor(oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(R_O)+"]";
+			var oppTeamEmbed = "Debater: " + oppFullName + " (<@"+opp.id+">)\nVotes: " + oppVotes + "\nElo: "+Math.floor(oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(R_O)+"]" + oppEloBoost;
 		}
 
 		const embed = new EmbedBuilder()

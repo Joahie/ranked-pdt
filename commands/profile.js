@@ -11,7 +11,7 @@ module.exports = {
 		.addUserOption(option => option.setName('target').setDescription('The user')),
 	async execute(interaction) {
 		try{
-		const target = interaction.options.getUser('target');
+			const target = interaction.options.getUser('target');
 		
 		if(target==null){
 			console.log("No id")
@@ -23,6 +23,7 @@ module.exports = {
 			var elo = results.elo*1;
 			elo = Math.floor(results.elo)
 			elo =  elo + ""
+			var eloBoosts = results.eloBoosts + "";
 			var club = results.club;
 			var wins = results.wins;
 			var losses = results.losses;
@@ -182,6 +183,7 @@ module.exports = {
 		{ name: 'Elo', value: elo, inline: true},
 		{ name: 'Ranking', value: ranking, inline: true },
 		{ name: 'Record', value: wlr, inline: true },
+		{ name: 'Elo Boosts (1.2x)', value: eloBoosts, inline: true },
 		{ name: 'Club', value: club, inline: true },
 		{ name: 'State', value: state, inline: true },
 		{ name: 'Date joined', value: dateJoined, inline: true },
