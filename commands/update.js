@@ -57,12 +57,13 @@ module.exports = {
 		if((totalVotes % 2) != 1){
 			return interaction.reply({ content: "The total number of judges needs to be odd", ephemeral: true });
 		}
+
+		if(totalVotes > 5){
+			return interaction.reply({ content: "You can't have more than 5 judges for a round", ephemeral: true });
+		}
 		oppVotes = oppVotes + ""
 		govVotes = govVotes + ""
-		var temp = await mongoRounds.findOne({id: "Count"});
-		var amountOfRounds = temp.count*1
-		var roundID = ("0000" + amountOfRounds).slice(-5);
-		var newCount = amountOfRounds + 1
+		
 		var govFullName = govDB.firstName + " " + govDB.lastName;
 		var oppFullName = oppDB.firstName + " " + oppDB.lastName;
 		const d = new Date();
@@ -105,7 +106,7 @@ module.exports = {
 		if(oppDB.eloBoosts > 0){
 			oppBoostBoolean = true;
 			if(!govWon){
-				O_G = O_G + 1.2 * 80 * (S_O - E_O) 
+				R_O = R_O + 1.2 * 80 * (S_O - E_O) 
 			}else{
 				R_O = R_O + 80 * (S_O - E_O) 
 			}			let remaining = oppDB.eloBoosts - 1
@@ -186,9 +187,33 @@ module.exports = {
 		
 		collector.on('collect', async i => {
 				await i.update({components: [greyOut] });
+				var temp = await mongoRounds.findOne({id: "Count"});
+				var amountOfRounds = temp.count*1
+				var roundID = ("0000" + amountOfRounds).slice(-5);
+				var newCount = amountOfRounds + 1
 				if(i.customId === confirmId){
 					await interaction.followUp({content:"The results of round #"+roundID+" have been confirmed by <@"+otherDebaterID+">"})
-					await mongoRounds.insertOne({id: amountOfRounds, displayID: roundID, govDebater: gov.id, oppDebater: opp.id, govVotes: govVotes, oppVotes: oppVotes, resolution: resolution, date: dateFormatted, govElo: R_G,oppElo: R_O,govEloChange: govEloChange, oppEloChange: oppEloChange, winner: winner, govBoost: govBoostBoolean, oppBoost: oppBoostBoolean })
+					if(R_G > govDB.topElo){
+						var govHighElo = "\n" + govFullName + " has a new highest elo [" +Math.floor(govDB.topElo) + " ➜ "+Math.floor(R_G)+"]"
+						await mongoUsers.updateOne({id: govDB.id},{$set:{topElo: R_G}} )
+						var govChangeHighElo = true;
+
+					}else{
+						var govHighElo = ""
+						var govChangeHighElo = false;
+
+					}
+					if(R_O > oppDB.topElo){
+						var oppHighElo = "\n" + oppFullName + " has a new highest elo [" +Math.floor(oppDB.topElo) + " ➜ "+Math.floor(R_O)+"]"
+						await mongoUsers.updateOne({id: oppDB.id},{$set:{topElo: R_O}} )
+						var oppChangeHighElo = true;
+
+					}else{
+						var oppHighElo = ""
+						var oppChangeHighElo = false;
+					}
+					await mongoRounds.insertOne({id: amountOfRounds, displayID: roundID, govDebater: gov.id, oppDebater: opp.id, govVotes: govVotes, oppVotes: oppVotes, resolution: resolution, date: dateFormatted, govElo: R_G,oppElo: R_O,govEloChange: govEloChange, oppEloChange: oppEloChange, winner: winner, govBoost: govBoostBoolean, oppBoost: oppBoostBoolean , govChangeHighElo: govChangeHighElo, oppChangeHighElo:oppChangeHighElo })
+
 					await mongoRounds.updateOne({id: "Count"},{$set:{count: newCount}})
 					if(gov_votes > opp_votes){
 						var newGovWins = govDB.wins*1 + 1
@@ -215,14 +240,14 @@ if(oppDB.eloBoosts > 0){
 					await mongoUsers.updateOne({id: govDB.id},{$set:{elo: R_G, wins: newGovWins, losses: newGovLosses, eloBoosts: newGovEloBoosts}})
 					await mongoUsers.updateOne({id: oppDB.id},{$set:{elo: R_O, wins: newOppWins, losses: newOppLosses, eloBoosts: newOppEloBoosts}})
 					if(govEloChange > 0){
-						var govTeamEmbed = "Debater: " + govFullName + " (<@"+gov.id+">)\nVotes: " + govVotes + "\nElo: +"+Math.floor(govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(R_G)+"]" + govEloBoost;
+						var govTeamEmbed = "Debater: " + govFullName + " (<@"+gov.id+">)\nVotes: " + govVotes + "\nElo: +"+Math.floor(govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(R_G)+"]" + govEloBoost + govHighElo;
 					}else{
-						var govTeamEmbed = "Debater: " + govFullName + " (<@"+gov.id+">)\nVotes: " + govVotes + "\nElo: "+Math.floor(govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(R_G)+"]"+ govEloBoost;
+						var govTeamEmbed = "Debater: " + govFullName + " (<@"+gov.id+">)\nVotes: " + govVotes + "\nElo: "+Math.floor(govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(R_G)+"]"+ govEloBoost + govHighElo;
 					}
 					if(oppEloChange > 0){
-						var oppTeamEmbed = "Debater: " + oppFullName + " (<@"+opp.id+">)\nVotes: " + oppVotes + "\nElo: +"+Math.floor(oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(R_O)+"]"+oppEloBoost;
+						var oppTeamEmbed = "Debater: " + oppFullName + " (<@"+opp.id+">)\nVotes: " + oppVotes + "\nElo: +"+Math.floor(oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(R_O)+"]"+oppEloBoost + oppHighElo;
 					}else{
-						var oppTeamEmbed = "Debater: " + oppFullName + " (<@"+opp.id+">)\nVotes: " + oppVotes + "\nElo: "+Math.floor(oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(R_O)+"]"+oppEloBoost;
+						var oppTeamEmbed = "Debater: " + oppFullName + " (<@"+opp.id+">)\nVotes: " + oppVotes + "\nElo: "+Math.floor(oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(R_O)+"]"+oppEloBoost + oppHighElo;
 					}
 					const embed = new EmbedBuilder()
 			
@@ -244,10 +269,33 @@ if(oppDB.eloBoosts > 0){
 		collector.on('end', async collected => {
 
 			if(collected.size == 0){
+				var temp = await mongoRounds.findOne({id: "Count"});
+		var amountOfRounds = temp.count*1
+		var roundID = ("0000" + amountOfRounds).slice(-5);
+		var newCount = amountOfRounds + 1
 				await interaction.editReply({components: [greyOut] });
 
-		await mongoRounds.insertOne({id: amountOfRounds, displayID: roundID, govDebater: gov.id, oppDebater: opp.id, govVotes: govVotes, oppVotes: oppVotes, resolution: resolution, date: dateFormatted, govElo: R_G,oppElo: R_O,govEloChange: govEloChange, oppEloChange: oppEloChange, winner: winner, govBoost: govBoostBoolean, oppBoost: oppBoostBoolean})
-		await mongoRounds.updateOne({id: "Count"},{$set:{count: newCount}})
+				if(R_G > govDB.topElo){
+					var govHighElo = "\n" + govFullName + " has a new highest elo [" +Math.floor(govDB.topElo) + " ➜ "+Math.floor(R_G)+"]"
+					await mongoUsers.updateOne({id: govDB.id},{$set:{topElo: R_G}} )
+					var govChangeHighElo = true;
+
+				}else{
+					var govHighElo = ""
+					var govChangeHighElo = false;
+
+				}
+				if(R_O > oppDB.topElo){
+					var oppHighElo = "\n" + oppFullName + " has a new highest elo [" +Math.floor(oppDB.topElo) + " ➜ "+Math.floor(R_O)+"]"
+					await mongoUsers.updateOne({id: oppDB.id},{$set:{topElo: R_O}} )
+					var oppChangeHighElo = true;
+
+				}else{
+					var oppHighElo = ""
+					var oppChangeHighElo = false;
+				}
+				await mongoRounds.insertOne({id: amountOfRounds, displayID: roundID, govDebater: gov.id, oppDebater: opp.id, govVotes: govVotes, oppVotes: oppVotes, resolution: resolution, date: dateFormatted, govElo: R_G,oppElo: R_O,govEloChange: govEloChange, oppEloChange: oppEloChange, winner: winner, govBoost: govBoostBoolean, oppBoost: oppBoostBoolean , govChangeHighElo: govChangeHighElo, oppChangeHighElo:oppChangeHighElo })
+	await mongoRounds.updateOne({id: "Count"},{$set:{count: newCount}})
 		if(gov_votes > opp_votes){
 			var newGovWins = govDB.wins*1 + 1
 			var newOppWins = oppDB.wins*1 - 1
@@ -268,14 +316,14 @@ if(oppDB.eloBoosts > 0){
 		await mongoUsers.updateOne({id: govDB.id},{$set:{elo: R_G, wins: newGovWins, eloBoosts: newGovEloBoosts}})
 		await mongoUsers.updateOne({id: oppDB.id},{$set:{elo: R_O, wins: newOppWins, eloBoosts: newOppEloBoosts}})
 		if(govEloChange > 0){
-			var govTeamEmbed = "Debater: " + govFullName + " (<@"+gov.id+">)\nVotes: " + govVotes + "\nElo: +"+Math.floor(govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(R_G)+"]";
+			var govTeamEmbed = "Debater: " + govFullName + " (<@"+gov.id+">)\nVotes: " + govVotes + "\nElo: +"+Math.floor(govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(R_G)+"]" + govHighElo;
 		}else{
-			var govTeamEmbed = "Debater: " + govFullName + " (<@"+gov.id+">)\nVotes: " + govVotes + "\nElo: "+Math.floor(govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(R_G)+"]";
+			var govTeamEmbed = "Debater: " + govFullName + " (<@"+gov.id+">)\nVotes: " + govVotes + "\nElo: "+Math.floor(govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(R_G)+"]" + govHighElo;
 		}
 		if(oppEloChange > 0){
-			var oppTeamEmbed = "Debater: " + oppFullName + " (<@"+opp.id+">)\nVotes: " + oppVotes + "\nElo: +"+Math.floor(oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(R_O)+"]";
+			var oppTeamEmbed = "Debater: " + oppFullName + " (<@"+opp.id+">)\nVotes: " + oppVotes + "\nElo: +"+Math.floor(oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(R_O)+"]" + oppHighElo;
 		}else{
-			var oppTeamEmbed = "Debater: " + oppFullName + " (<@"+opp.id+">)\nVotes: " + oppVotes + "\nElo: "+Math.floor(oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(R_O)+"]";
+			var oppTeamEmbed = "Debater: " + oppFullName + " (<@"+opp.id+">)\nVotes: " + oppVotes + "\nElo: "+Math.floor(oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(R_O)+"]" + oppHighElo;
 		}
 		const embed = new EmbedBuilder()
 
