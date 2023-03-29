@@ -93,11 +93,13 @@ module.exports = {
 		}
 
 	}else{
-			console.log("PAG")
 			const results = await mongoUsers.findOne({id: target.id})
 			if(results == null){
 				return interaction.reply({ content: target.username  + " doesn't have a Ranked PDT account", ephemeral: true });
 			}
+			var eloBoosts = results.eloBoosts + "";
+			var topElo = Math.floor(results.topElo);
+			topElo = topElo + ""
 			var name = results.firstName +" "+  results.lastName;
 			var elo = results.elo*1;
 			elo = Math.floor(results.elo)

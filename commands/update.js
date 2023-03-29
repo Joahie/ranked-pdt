@@ -57,7 +57,7 @@ module.exports = {
 		if((totalVotes % 2) != 1){
 			return interaction.reply({ content: "The total number of judges needs to be odd", ephemeral: true });
 		}
-
+      
 		if(totalVotes > 5){
 			return interaction.reply({ content: "You can't have more than 5 judges for a round", ephemeral: true });
 		}
@@ -298,10 +298,14 @@ if(oppDB.eloBoosts > 0){
 	await mongoRounds.updateOne({id: "Count"},{$set:{count: newCount}})
 		if(gov_votes > opp_votes){
 			var newGovWins = govDB.wins*1 + 1
-			var newOppWins = oppDB.wins*1 - 1
+			var newOppWins = oppDB.wins*1
+      var newGovLosses = govDB.losses*1
+						var newOppLosses = oppDB.losses*1+1
 		}else{
-			var newGovWins = govDB.wins*1 - 1
+			var newGovWins = govDB.wins*1
 			var newOppWins = oppDB.wins*1 + 1
+      var newGovLosses = govDB.losses*1+1
+						var newOppLosses = oppDB.losses*1
 		}
 		if(govDB.eloBoosts > 0){
 			var newGovEloBoosts = govDB.eloBoosts - 1;
@@ -313,8 +317,8 @@ if(oppDB.eloBoosts > 0){
 		}else{
 			var newOppEloBoosts = 0
 		}
-		await mongoUsers.updateOne({id: govDB.id},{$set:{elo: R_G, wins: newGovWins, eloBoosts: newGovEloBoosts}})
-		await mongoUsers.updateOne({id: oppDB.id},{$set:{elo: R_O, wins: newOppWins, eloBoosts: newOppEloBoosts}})
+		await mongoUsers.updateOne({id: govDB.id},{$set:{elo: R_G, wins: newGovWins, eloBoosts: newGovEloBoosts, newGovLosses: newGovLosses}})
+		await mongoUsers.updateOne({id: oppDB.id},{$set:{elo: R_O, wins: newOppWins, eloBoosts: newOppEloBoosts,newOppLosses: newOppLosses}})
 		if(govEloChange > 0){
 			var govTeamEmbed = "Debater: " + govFullName + " (<@"+gov.id+">)\nVotes: " + govVotes + "\nElo: +"+Math.floor(govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(R_G)+"]" + govHighElo;
 		}else{
