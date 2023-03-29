@@ -12,7 +12,6 @@ module.exports = {
 	async execute(interaction) {
 		try{
 			const target = interaction.options.getUser('target');
-		
 		if(target==null){
 			console.log("No id")
 			const results = await mongoUsers.findOne({id: interaction.user.id})
@@ -30,6 +29,8 @@ module.exports = {
 			var wlr = wins + "-" + losses;
 			var state = results.state;
 			var dateJoined = results.dateJoined;
+			var topElo = Math.floor(results.topElo);
+			topElo = topElo + ""
 
 		const results1 = await mongoUsers.find({}).toArray();
 		var eloArray = [];
@@ -181,14 +182,16 @@ module.exports = {
 	.setTitle(name + "'s Ranked PDT Profile")
 	.addFields(
 		{ name: 'Elo', value: elo, inline: true},
+		{ name: 'Highest Elo', value: topElo, inline: true },
+		{ name: 'Elo Boosts (1.2x)', value: eloBoosts, inline: true },
 		{ name: 'Ranking', value: ranking, inline: true },
 		{ name: 'Record', value: wlr, inline: true },
-		{ name: 'Elo Boosts (1.2x)', value: eloBoosts, inline: true },
+
 		{ name: 'Club', value: club, inline: true },
 		{ name: 'State', value: state, inline: true },
-		{ name: 'Date joined', value: dateJoined, inline: true },
-
 	)
+	.setFooter({ text: 'Joined '  + dateJoined })
+
 		return interaction.reply({ embeds: [embed] });
 	} catch (error) {
 		console.error(error);

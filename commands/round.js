@@ -33,6 +33,18 @@ module.exports = {
 		var oppFullName = opp.firstName + " " + opp.lastName
 		var originalGovElo = results.govElo - results.govEloChange;
 		var originalOppElo = results.oppElo - results.oppEloChange;
+		if(results.govChangeHighElo){
+			let oldGovElo = results.govElo - results.govEloChange;
+			var govChangeHighElo = "\n" +govFullName + " has a new highest elo [" + oldGovElo + " ➜ " + results.govElo + "]"
+		}else{
+			var govChangeHighElo = ""
+		}
+		if(results.oppChangeHighElo){
+			let oldOppElo = results.oppElo - results.oppEloChange;
+			var oppChangeHighElo = "\n" +oppFullName + " has a new highest elo [" + oldOppElo + " ➜ " + results.oppElo + "]"
+		}else{
+			var oppChangeHighElo = ""
+		}
 		if(results.oppBoost){
 			var oppBoost = "\n" +oppFullName  + " used an elo boost."
 		}else{
@@ -44,14 +56,14 @@ module.exports = {
 			var govBoost = ""
 		}
 		if(results.govEloChange*1 > 0){
-			var govTeamEmbed = "Debater: " + govFullName + " (<@"+results.govDebater+">)\nVotes: " + results.govVotes + "\nElo: +"+Math.floor(results.govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(results.govElo)+"]" + govBoost;
+			var govTeamEmbed = "Debater: " + govFullName + " (<@"+results.govDebater+">)\nVotes: " + results.govVotes + "\nElo: +"+Math.floor(results.govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(results.govElo)+"]" + govBoost + govChangeHighElo;
 		}else{
-			var govTeamEmbed = "Debater: " + govFullName + " (<@"+results.govDebater+">)\nVotes: " + results.govVotes + "\nElo: "+Math.floor(results.govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(results.govElo)+"]"  + govBoost;
+			var govTeamEmbed = "Debater: " + govFullName + " (<@"+results.govDebater+">)\nVotes: " + results.govVotes + "\nElo: "+Math.floor(results.govEloChange) + " ["+Math.floor(originalGovElo)+" ➜ " +Math.floor(results.govElo)+"]"  + govBoost + govChangeHighElo;
 		}
 		if(results.oppEloChange*1 > 0){
-			var oppTeamEmbed = "Debater: " + oppFullName + " (<@"+results.oppDebater+">)\nVotes: " + results.oppVotes + "\nElo: +"+Math.floor(results.oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(results.oppElo)+"]" + oppBoost;
+			var oppTeamEmbed = "Debater: " + oppFullName + " (<@"+results.oppDebater+">)\nVotes: " + results.oppVotes + "\nElo: +"+Math.floor(results.oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(results.oppElo)+"]" + oppBoost + oppChangeHighElo;
 		}else{
-			var oppTeamEmbed = "Debater: " + oppFullName + " (<@"+results.oppDebater+">)\nVotes: " + results.oppVotes + "\nElo: "+Math.floor(results.oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(results.oppElo)+"]" + oppBoost;
+			var oppTeamEmbed = "Debater: " + oppFullName + " (<@"+results.oppDebater+">)\nVotes: " + results.oppVotes + "\nElo: "+Math.floor(results.oppEloChange) + " ["+Math.floor(originalOppElo)+" ➜ " +Math.floor(results.oppElo)+"]" + oppBoost + oppChangeHighElo;
 		}
 		if(results.govVotes > results.oppVotes){
 			var winnerDeclaration = govFullName + " (<@" + gov.id+">)"
