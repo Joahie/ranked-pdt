@@ -14,7 +14,6 @@ module.exports = {
 		.addStringOption(option => option.setName('state').setDescription('State for profile').setRequired(true)),
 	async execute(interaction) {
 		try{
-		
 		const results = await mongoUsers.findOne({id: interaction.user.id})
 		if(results != null){
 			return interaction.reply({ content: "You already have a Ranked PDT account", ephemeral: true });
@@ -31,7 +30,6 @@ module.exports = {
 		const results1 = await mongoUsers.find({}).toArray();
 		var eloArray = [];
 		var idArray = [];
-		console.log(results1)
 		for(i = 0; i<results1.length; i++){
 			eloArray.push(results1[i].elo)
 			idArray.push(results1[i].id)
@@ -91,30 +89,34 @@ module.exports = {
 	.setTitle(name + "'s Ranked PDT Profile")
 	.addFields(
 		{ name: 'Elo', value: '1000', inline: true},
-		{ name: 'Highest Elo', value: "1000", inline: true },
+    		{ name: 'Highest Elo', value: "1000", inline: true },
+    		{ name: 'Elo Boosts (1.2x)', value: "0", inline: true },
+
 		{ name: 'Ranking', value: ranking, inline: true },
 		{ name: 'Record', value: "0-0", inline: true },
-		{ name: 'Elo Boosts (1.2x)', value: "0", inline: true },
+
 		{ name: 'Club', value: club, inline: true },
 		{ name: 'State', value: state, inline: true },
-		{ name: 'Date joined', value: dateFormatted, inline: true },
 	)
+      .setFooter({ text: 'Joined '  + dateFormatted })
+
 	
 		var role= interaction.member.guild.roles.cache.find(role => role.name === "Debater");
 		interaction.member.roles.add(role);
-		await interaction.channel.send({ embeds: [embed] });
-		return interaction.reply({ content: "Your profile has been successfully created!", ephemeral: false });
-	} catch (error) {
-		console.error(error);
-var today = new Date();
+     await interaction.reply({ content: "Your profile has been successfully created!", ephemeral: false });
+
+		return interaction.channel.send({ embeds: [embed] });
+       } catch (error) {
+				console.error(error);
+        var today = new Date();
 var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
 var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
 var dateTime = date+' '+time;
-
+ 
 console.log("Date: " + dateTime)
-console.log("User ID:" + interaction.user.id)
-				  return interaction.reply({ content: 'There was an error while executing this command!'});
+        console.log("Uuser ID:" + interaction.user.id)
+            					return interaction.reply({ content: 'There was an error while executing this command!'});
 
-}
+  }
 	},
 };

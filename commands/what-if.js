@@ -38,6 +38,10 @@ module.exports = {
 		if((totalVotes % 2) != 1){
 			return interaction.reply({ content: "The total number of judges needs to be odd", ephemeral: true });
 		}
+
+		if(totalVotes > 5){
+			return interaction.reply({ content: "You can't have more than 5 judges for a round", ephemeral: true });
+		}
 		oppVotes = oppVotes + ""
 		govVotes = govVotes + ""
 		var govFullName = govDB.firstName + " " + govDB.lastName;

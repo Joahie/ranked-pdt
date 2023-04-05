@@ -13,15 +13,17 @@ module.exports = {
 		.addIntegerOption(option => option.setName('round-id').setDescription("The ID of the round that you'd like to delete").setRequired(true))
 		.setDefaultMemberPermissions(0),
 	async execute(interaction) {
-		try{
+    try{
+		
 		var uuid = crypto.randomUUID()
 		
 		var roundID = interaction.options.getInteger('round-id');
 		var results = await mongoRounds.findOne({id: roundID})
-		var displayID = results.displayID
 		if(results == null){
 			return interaction.reply({ content: "This round doesn't exist. Try making sure that you inputted the correct ID.", ephemeral: true });
 		}
+      		var displayID = results.displayID
+
 
 		var row = new ActionRowBuilder()
 			.addComponents(
@@ -105,7 +107,7 @@ const embed = new EmbedBuilder()
 	 }
 var deleteId = "delete" +  uuid;
 var cancelId = "cancel" +  uuid;
-   var collector = interaction.channel.createMessageComponentCollector({ filter, time: 900000 });
+   var collector = interaction.channel.createMessageComponentCollector({ filter, time: 890000 });
    collector.on('collect', async i => {	
 		   await i.update({components: [greyOut] });
 		   if(i.customId == deleteId){
@@ -117,7 +119,7 @@ var cancelId = "cancel" +  uuid;
 				var oppProfile = await mongoUsers.findOne({id: findRound.oppDebater});
 				var newGovElo = govProfile.elo - findRound.govEloChange;
 				var newOppElo = oppProfile.elo - findRound.oppEloChange;
-				if(findRound.winner == findRound.govDebater){
+				if(findRound.winner == results.govDebater){
 					var newGovWins = govProfile.wins - 1;
 					var newGovLosses = govProfile.losses;
 					var newOppWins = oppProfile.wins;
@@ -128,8 +130,30 @@ var cancelId = "cancel" +  uuid;
 					var newOppWins = oppProfile.wins - 1;
 					var newOppLosses = oppProfile.losses;
 				}
-				await mongoUsers.updateOne({id: findRound.govDebater}, {$set:{elo: newGovElo, wins: newGovWins,losses:newGovLosses}});
-				await mongoUsers.updateOne({id: findRound.oppDebater}, {$set:{elo: newOppElo, wins: newOppWins,losses:newOppLosses}});		
+         if(results.govBoost){
+           var newGovBoost = govProfile.eloBoosts+1;
+         }else{
+           var newGovBoost = govProfile.eloBoosts; 
+         }
+         if(results.oppBoost){
+           var newOppBoost = oppProfile.eloBoosts+1;
+         }else{
+           var newOppBoost = oppProfile.eloBoosts; 
+         }
+         if(results.govChangeHighElo){
+			var newGovHighElo = newGovElo;
+		}else{
+           var newGovHighElo = govProfile.topElo;
+         }
+         
+         if(results.oppChangeHighElo){
+           var newOppHighElo = newOppElo;
+         }else{
+           var newOppHighElo = oppProfile.topElo;
+         }
+
+				await mongoUsers.updateOne({id: findRound.govDebater}, {$set:{elo: newGovElo, wins: newGovWins,losses:newGovLosses, eloBoosts: newGovBoost, topElo: newGovHighElo}});
+				await mongoUsers.updateOne({id: findRound.oppDebater}, {$set:{elo: newOppElo, wins: newOppWins,losses:newOppLosses, eloBoosts: newOppBoost, topElo: newOppHighElo}});		
 				await mongoRounds.deleteOne({id: roundID});		
 				return interaction.followUp({content:"The results of round #"+displayID+" have been deleted"});
 		   }else if(i.customId == cancelId){
@@ -144,17 +168,16 @@ var cancelId = "cancel" +  uuid;
 
 	   }
    });   
-} catch (error) {
-	console.error(error);
-var today = new Date();
+		 } catch (error) {
+				console.error(error);
+        var today = new Date();
 var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
 var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
 var dateTime = date+' '+time;
-
+ 
 console.log("Date: " + dateTime)
-console.log("User ID:" + interaction.user.id)
-			  return interaction.reply({ content: 'There was an error while executing this command!'});
-
-}
+        console.log("User ID:" + interaction.user.id)
+					return interaction.reply({ content: 'There was an error while executing this command!'});
+  }
 	},
 };
