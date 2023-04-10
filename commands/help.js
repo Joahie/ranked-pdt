@@ -10,7 +10,6 @@ module.exports = {
 		try{
 		const embed = new EmbedBuilder()
 
-	.setColor(0x0099FF)
 	.setTitle("About & Commands")
 	.setDescription('Ranked PDT (Parliamentary Debate Tournament) is an online and informal debate league for parliamentary 1v1s. Debaters start with an elo (point system) of 1000, and gain or lose points by debating. The change in their elo is determined by the elo of their opponent and how many judges voted for them. To view the rules head to <#1085211966131404881>.')
 	.addFields(

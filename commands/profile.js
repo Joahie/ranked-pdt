@@ -13,7 +13,6 @@ module.exports = {
 		try{
 			const target = interaction.options.getUser('target');
 		if(target==null){
-			console.log("No id")
 			const results = await mongoUsers.findOne({id: interaction.user.id})
 			if(results == null){
 				return interaction.reply({ content: "You don't have a Ranked PDT account", ephemeral: true });
@@ -30,12 +29,44 @@ module.exports = {
 			var state = results.state;
 			var dateJoined = results.dateJoined;
 			var topElo = Math.floor(results.topElo);
+			var rank = results.rank;
+			var diamond = results.diamond;
+			var color;
+switch(rank) {
+	case "st":
+	  rank = "Stone"
+	  color = "888c8d";
+	  break;
+	case "g":
+		rank = "Gold"
+		color = "ffd700"
+	  break;
+	  case "si":
+		rank = "Silver"
+		color = "c0c0c0"
+	  break;
+	  case "b":
+		rank = "Bronze"
+		color = "cd7f32";
+		break;
+	  case "w":
+		rank = "Wood"
+		color = "966f33"
+	  break;
+	default:
+	  rank = null;
+	  color = "888c8d";
+  }
+  if(diamond){
+	rank = "Diamond";
+	color = "4ee2ec";
+}
+
 			topElo = topElo + ""
 
 		const results1 = await mongoUsers.find({}).toArray();
 		var eloArray = [];
 		var idArray = [];
-		console.log(results1)
 		for(i = 0; i<results1.length; i++){
 			eloArray.push(results1[i].elo)
 			idArray.push(results1[i].id)
@@ -113,7 +144,39 @@ module.exports = {
 			const results1 = await mongoUsers.find({}).toArray();
 			var eloArray = [];
 			var idArray = [];
-			console.log(results1)
+			var rank = results.rank;
+			var diamond = results.diamond;
+			var color;
+switch(rank) {
+	case "st":
+	  rank = "Stone"
+	  color = "888c8d";
+	  break;
+	case "g":
+		rank = "Gold"
+		color = "ffd700"
+	  break;
+	  case "si":
+		rank = "Silver"
+		color = "c0c0c0"
+	  break;
+	  case "b":
+		rank = "Bronze"
+		color = "cd7f32";
+		break;
+	  case "w":
+		rank = "Wood"
+		color = "966f33"
+	  break;
+	default:
+	  rank = null;
+	  color = "888c8d";
+  }
+  if(diamond){
+	rank = "Diamond";
+	color = "4ee2ec";
+}
+
 			for(i = 0; i<results1.length; i++){
 				eloArray.push(results1[i].elo)
 				idArray.push(results1[i].id)
@@ -148,26 +211,19 @@ module.exports = {
 			quickSort(eloArray, idArray)
 			var prevRanking;
 			var prevElo;
-			console.log(eloArray);
-			console.log(idArray);
 			for(i = 1; i <= eloArray.length; i++){
 				if(i == 1){
 					
 					if( target.id == idArray[i-1]){
 						var ranking = 1;
 					}
-					console.log(i + "1")
 					prevRanking = i;
 				}else{
 					if(prevElo == eloArray[i-1]){
-						console.log(i + "2")
-
 						if( target.id == idArray[i-1]){
 							var ranking = prevRanking;
 						}
 					}else{
-						console.log(i + "3")
-
 						prevRanking = i;
 						if( target.id == idArray[i-1]){
 							var ranking = i;
@@ -176,11 +232,10 @@ module.exports = {
 				}
 				prevElo = eloArray[i-1]	
 			}
-			console.log(ranking)
 		}
 		ranking = "#"+ ranking
 		const embed = new EmbedBuilder()
-	.setColor(0x0099FF)
+	.setColor(color)
 	.setTitle(name + "'s Ranked PDT Profile")
 	.addFields(
 		{ name: 'Elo', value: elo, inline: true},

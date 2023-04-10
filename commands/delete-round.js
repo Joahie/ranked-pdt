@@ -83,7 +83,6 @@ module.exports = {
 		}
 
 const embed = new EmbedBuilder()
-	.setColor(0x0099FF)
 	.setTitle("Round #" + results.displayID)
 	.setDescription('Resolution: ' + results.resolution)
 	.addFields(

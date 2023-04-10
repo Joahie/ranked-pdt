@@ -26,7 +26,7 @@ module.exports = {
 		const d = new Date();
 		const month = d.getMonth() + 1
 		const dateFormatted = month + "/" + d.getDate() + "/" + d.getFullYear();
-		await mongoUsers.insertOne({id: interaction.user.id, firstName: firstName, lastName: lastName, club: club, state: state, dateJoined: dateFormatted, elo: 1000, wins: 0, losses: 0, eloBoosts: 0, topElo: 1000})
+		await mongoUsers.insertOne({id: interaction.user.id, firstName: firstName, lastName: lastName, club: club, state: state, dateJoined: dateFormatted, elo: 1000, wins: 0, losses: 0, eloBoosts: 0, topElo: 1000, diamond: false, rank: "st"})
 		const results1 = await mongoUsers.find({}).toArray();
 		var eloArray = [];
 		var idArray = [];
@@ -85,7 +85,6 @@ module.exports = {
 		var ranking = "#" + ranking
 		const embed = new EmbedBuilder()
 		
-	.setColor(0x0099FF)
 	.setTitle(name + "'s Ranked PDT Profile")
 	.addFields(
 		{ name: 'Elo', value: '1000', inline: true},
@@ -103,6 +102,8 @@ module.exports = {
 	
 		var role= interaction.member.guild.roles.cache.find(role => role.name === "Debater");
 		interaction.member.roles.add(role);
+		var stoneRole= interaction.member.guild.roles.cache.find(role => role.name === "Stone");
+		interaction.member.roles.add(stoneRole);
      await interaction.reply({ content: "Your profile has been successfully created!", ephemeral: false });
 
 		return interaction.channel.send({ embeds: [embed] });

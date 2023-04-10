@@ -113,7 +113,6 @@ module.exports = {
 
 		const embed = new EmbedBuilder()
 
-	.setColor(0x0099FF)
 	.setTitle("Hypothetical Round Results")
 	.addFields(
 		{ name: 'Government Team', value: govTeamEmbed, inline: false},

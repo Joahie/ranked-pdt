@@ -1,3 +1,4 @@
+const cron = require('cron');
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits,ActivityType} = require('discord.js');
@@ -13,6 +14,8 @@ const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('
 
 	mongoclient.connect(async function (err, mongoclient) {
 		global.mongoclient = mongoclient;
+		const update_rankings = require("./update-rankings.js");
+
 		for (const file of commandFiles) {
 			const filePath = path.join(commandsPath, file);
 			const command = require(filePath);
@@ -23,6 +26,12 @@ const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('
 		client.once(Events.ClientReady, () => {
 			console.log('Ready!');
 			client.user.setActivity(' for /help', { type: ActivityType.Watching });
+			setInterval(() => {
+				try{update_rankings.updateRankings(client);
+				}catch{
+					console.log("\nThere was an error while updating rankings\n")
+				}
+			  }, 1000*60*60*2);
 		});
 		client.on('guildMemberAdd', async member => {
 			member.send("Welcome to the Ranked PDT server! To create an account, head to <#1085212287603843185> and use the </register:1085225509870379101> command. To see the rest of my commands, use the </help:1085953726705045677> command.");

@@ -114,7 +114,6 @@ module.exports = {
 			var oppTeamConfirmationEmbed = "Debater: " + oppFullName + " (<@"+opp.id+">)\nVotes: " + oppVotes;
 			const confirmationEmbed = new EmbedBuilder()
 	
-			.setColor(0x0099FF)
 			.setTitle("Round Confirmation")
 			.setDescription('Resolution: ' + resolution)
 			.addFields(
@@ -231,7 +230,6 @@ module.exports = {
 						}
 						const embed = new EmbedBuilder()
 				
-					.setColor(0x0099FF)
 					.setTitle("Round #" + roundID)
 					.setDescription('Resolution: ' + resolution)
 					.addFields(

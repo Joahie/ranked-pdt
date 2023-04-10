@@ -123,7 +123,6 @@ module.exports = {
 			leaderboardPage = 1
 		}
 		var embed = new EmbedBuilder()
-	.setColor(0x0099FF)
 	.setTitle("Qualified Leaderboard")
 	.setDescription(embededContent)
 	.setFooter({ text: rankString + 'Page ' + leaderboardPage + " of " + pages});

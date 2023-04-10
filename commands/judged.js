@@ -42,7 +42,6 @@ if(judgeDB == null){
 		var oppTeamName = oppDB.firstName + " " + oppDB.lastName
 		const confirmationEmbed = new EmbedBuilder()
 
-		.setColor(0x0099FF)
 		.setTitle("Judging Confirmation")
 		.setDescription('Resolution: ' + resolution)
 		.addFields(
@@ -103,7 +102,6 @@ if(judgeDB == null){
 
 		const embed = new EmbedBuilder()
 
-		.setColor(0x0099FF)
 		.setTitle("Judging Elo")
 		.setDescription('<@'+interaction.user.id+'> has gained an elo boost for judging a round. They now have ' + eloBoosts + " boosts.")
 		.addFields(
@@ -129,7 +127,6 @@ if(judgeDB == null){
 
 				const embed = new EmbedBuilder()
 		
-				.setColor(0x0099FF)
 				.setTitle("Judging Elo")
 				.setDescription('<@'+interaction.user.id+'> has gained an elo boost for judging a round. They now have ' + eloBoosts + " boosts.")
 				.addFields(
