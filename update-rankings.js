@@ -1,5 +1,3 @@
-//switch guild id and channel id and move changes to /registe, /profile file, and get rid of .setColor()
-//show rank on profile using color
 const gold = 0.1;
 const silver = 0.1;
 const bronze = 0.2;
@@ -47,18 +45,27 @@ async function updateRankings(client) {
         }
         try{
         const member = await guild.members.fetch(user.id);
-        var goldRole = member.guild.roles.cache.find(role => role.name == "Gold");
-        var silverRole = member.guild.roles.cache.find(role => role.name == "Silver");
-        var bronzeRole = member.guild.roles.cache.find(role => role.name == "Bronze");
-        var woodRole = member.guild.roles.cache.find(role => role.name == "Wood");
-        await member.roles.remove(goldRole);
-        await member.roles.remove(silverRole);
-        await member.roles.remove(bronzeRole);
-        await member.roles.remove(woodRole);
-        var role = member.guild.roles.cache.find(role => role.name == "Stone");
-        await member.roles.add(role);
+        if(member.roles.cache.some(role => role.name === 'Gold')){
+            var goldRole = member.guild.roles.cache.find(role => role.name == "Gold");
+            member.roles.remove(goldRole);
+        }
+        if(member.roles.cache.some(role => role.name === 'Silver')){
+            var silverRole = member.guild.roles.cache.find(role => role.name == "Silver");
+            member.roles.remove(silverRole);
+        }
+        if(member.roles.cache.some(role => role.name === 'Bronze')){
+            var bronzeRole = member.guild.roles.cache.find(role => role.name == "Bronze");
+            member.roles.remove(bronzeRole);
+        }
+        if(member.roles.cache.some(role => role.name === 'Wood')){
+            var woodRole = member.guild.roles.cache.find(role => role.name == "Wood");
+            member.roles.remove(woodRole);
+        }
+        if(!member.roles.cache.some(role => role.name === 'Stone')){
+            var role = member.guild.roles.cache.find(role => role.name == "Stone");
+            member.roles.add(role);
+        }
     }catch{console.log("Couldn't find the user " + user.id+ " to assign them a rank")}
-
     }
     var eloArray = [];
     var idArray = [];
@@ -120,9 +127,10 @@ async function updateRankings(client) {
             }
             try{
                 const member = await guild.members.fetch(idArray[i]);
-                var diamondRole = member.guild.roles.cache.find(role => role.name == "Diamond");
-                await member.roles.add(diamondRole);
-                
+                if(!member.roles.cache.some(role => role.name === 'Diamond')){
+                    var diamondRole = member.guild.roles.cache.find(role => role.name == "Diamond");
+                    await member.roles.add(diamondRole);
+                }                
             }catch{console.log("Couldn't find the user " + idArray[i]+ " to assign them a rank")}        }else{
             if(diamondArray[i]){
                 await mongoUsers.updateOne({id: idArray[i]}, {$set:{diamond: false}});
@@ -131,8 +139,10 @@ async function updateRankings(client) {
             }
             try{
                 const member = await guild.members.fetch(idArray[i]);
+                if(member.roles.cache.some(role => role.name === 'Diamond')){
                 var diamondRole = member.guild.roles.cache.find(role => role.name == "Diamond");
                 await member.roles.remove(diamondRole);
+            }
             }catch{console.log("Couldn't find the user " + idArray[i]+ " to assign them a rank")}
         }
         if(i >= goldB && i <= goldU){
@@ -143,17 +153,27 @@ async function updateRankings(client) {
             }
             try{
                 const member = await guild.members.fetch(idArray[i]);
-                var role = member.guild.roles.cache.find(role => role.name == "Gold");
-                var silverRole = member.guild.roles.cache.find(role => role.name == "Silver");
-                var bronzeRole = member.guild.roles.cache.find(role => role.name == "Bronze");
-                var woodRole = member.guild.roles.cache.find(role => role.name == "Wood");
-                var stoneRole = member.guild.roles.cache.find(role => role.name == "Stone");
-                await member.roles.remove(silverRole);
-                await member.roles.remove(bronzeRole);
-                await member.roles.remove(woodRole);
-                await member.roles.remove(stoneRole);
-
-                await member.roles.add(role);
+                if(member.roles.cache.some(role => role.name === 'Stone')){
+                    var stoneRole = member.guild.roles.cache.find(role => role.name == "Stone");
+                    member.roles.remove(stoneRole);
+                }
+                if(member.roles.cache.some(role => role.name === 'Silver')){
+                    var silverRole = member.guild.roles.cache.find(role => role.name == "Silver");
+                    member.roles.remove(silverRole);
+                }
+                if(member.roles.cache.some(role => role.name === 'Bronze')){
+                    var bronzeRole = member.guild.roles.cache.find(role => role.name == "Bronze");
+                    member.roles.remove(bronzeRole);
+                }
+                if(member.roles.cache.some(role => role.name === 'Wood')){
+                    var woodRole = member.guild.roles.cache.find(role => role.name == "Wood");
+                    member.roles.remove(woodRole);
+                }
+                if(!member.roles.cache.some(role => role.name === 'Gold')){
+                    var role = member.guild.roles.cache.find(role => role.name == "Gold");
+                    member.roles.add(role);
+                }
+                
             }catch{console.log("Couldn't find the user " + idArray[i]+ " to assign them a rank")}        }else if(i >= silverB && i <= silverU){
             if(rankArray[i] != "si"){
                 let results = await mongoUsers.findOne({id: idArray[i]});
@@ -162,16 +182,27 @@ async function updateRankings(client) {
             }
             try{
                 const member = await guild.members.fetch(idArray[i]);
-                var role = member.guild.roles.cache.find(role => role.name == "Silver");
-                await member.roles.add(role);
-                var goldRole = member.guild.roles.cache.find(role => role.name == "Gold");
-                var bronzeRole = member.guild.roles.cache.find(role => role.name == "Bronze");
-                var woodRole = member.guild.roles.cache.find(role => role.name == "Wood");
-                var stoneRole = member.guild.roles.cache.find(role => role.name == "Stone");
-                await member.roles.remove(goldRole);
-                await member.roles.remove(bronzeRole);
-                await member.roles.remove(woodRole);
-                await member.roles.remove(stoneRole);
+                if(member.roles.cache.some(role => role.name === 'Stone')){
+                    var stoneRole = member.guild.roles.cache.find(role => role.name == "Stone");
+                    member.roles.remove(stoneRole);
+                }
+                if(member.roles.cache.some(role => role.name === 'Gold')){
+                    var goldRole = member.guild.roles.cache.find(role => role.name == "Gold");
+                    member.roles.remove(goldRole);
+                }
+                if(member.roles.cache.some(role => role.name === 'Bronze')){
+                    var bronzeRole = member.guild.roles.cache.find(role => role.name == "Bronze");
+                    member.roles.remove(bronzeRole);
+                }
+                if(member.roles.cache.some(role => role.name === 'Wood')){
+                    var woodRole = member.guild.roles.cache.find(role => role.name == "Wood");
+                    member.roles.remove(woodRole);
+                }
+                if(!member.roles.cache.some(role => role.name === 'Silver')){
+                    var role = member.guild.roles.cache.find(role => role.name == "Silver");
+                    member.roles.add(role);
+                }
+
             }catch{console.log("Couldn't find the user " + idArray[i]+ " to assign them a rank")}        }else if(i >= bronzeB && i <= bronzeU){
             if(rankArray[i] != "b"){
                 let results = await mongoUsers.findOne({id: idArray[i]});
@@ -181,16 +212,27 @@ async function updateRankings(client) {
             try{
                 
                 const member = await guild.members.fetch(idArray[i]);
-                var role = member.guild.roles.cache.find(role => role.name == "Bronze");
-                var goldRole = member.guild.roles.cache.find(role => role.name == "Gold");
-                var silverRole = member.guild.roles.cache.find(role => role.name == "Silver");
-                var woodRole = member.guild.roles.cache.find(role => role.name == "Wood");
-                var stoneRole = member.guild.roles.cache.find(role => role.name == "Stone");
-                await member.roles.remove(goldRole);
-                await member.roles.remove(silverRole);
-                await member.roles.remove(woodRole);
-                await member.roles.remove(stoneRole);
-                await member.roles.add(role);
+                if(member.roles.cache.some(role => role.name === 'Stone')){
+                    var stoneRole = member.guild.roles.cache.find(role => role.name == "Stone");
+                    member.roles.remove(stoneRole);
+                }
+                if(member.roles.cache.some(role => role.name === 'Gold')){
+                    var goldRole = member.guild.roles.cache.find(role => role.name == "Gold");
+                    member.roles.remove(goldRole);
+                }
+                if(member.roles.cache.some(role => role.name === 'Silver')){
+                    var silverRole = member.guild.roles.cache.find(role => role.name == "Silver");
+                    member.roles.remove(silverRole);
+                }
+                if(member.roles.cache.some(role => role.name === 'Wood')){
+                    var woodRole = member.guild.roles.cache.find(role => role.name == "Wood");
+                    member.roles.remove(woodRole);
+                }
+                if(!member.roles.cache.some(role => role.name === 'Bronze')){
+                    var role = member.guild.roles.cache.find(role => role.name == "Bronze");
+                    member.roles.add(role);
+                }
+
             }catch{console.log("Couldn't find the user " + idArray[i]+ " to assign them a rank")}        }else if(i >= woodB && i <= woodU){
             if(rankArray[i] != "w"){
                 let results = await mongoUsers.findOne({id: idArray[i]});
@@ -199,16 +241,27 @@ async function updateRankings(client) {
             }
             try{
                 const member = await guild.members.fetch(idArray[i]);
-                var role = member.guild.roles.cache.find(role => role.name == "Wood");
-                var goldRole = member.guild.roles.cache.find(role => role.name == "Gold");
-                var silverRole = member.guild.roles.cache.find(role => role.name == "Silver");
-                var bronzeRole = member.guild.roles.cache.find(role => role.name == "Bronze");
-                var stoneRole = member.guild.roles.cache.find(role => role.name == "Stone");
-                await member.roles.remove(goldRole);
-                await member.roles.remove(silverRole);
-                await member.roles.remove(bronzeRole);
-                await member.roles.remove(stoneRole);
-                await member.roles.add(role);
+                if(member.roles.cache.some(role => role.name === 'Stone')){
+                    var stoneRole = member.guild.roles.cache.find(role => role.name == "Stone");
+                    member.roles.remove(stoneRole);
+                }
+                if(member.roles.cache.some(role => role.name === 'Gold')){
+                    var goldRole = member.guild.roles.cache.find(role => role.name == "Gold");
+                    member.roles.remove(goldRole);
+                }
+                if(member.roles.cache.some(role => role.name === 'Silver')){
+                    var silverRole = member.guild.roles.cache.find(role => role.name == "Silver");
+                    member.roles.remove(silverRole);
+                }
+                if(member.roles.cache.some(role => role.name === 'Bronze')){
+                    var bronzeRole = member.guild.roles.cache.find(role => role.name == "Bronze");
+                     member.roles.remove(bronzeRole);
+                }
+                if(!member.roles.cache.some(role => role.name === 'Wood')){
+                    var role = member.guild.roles.cache.find(role => role.name == "Wood");
+                     member.roles.add(role);
+                }
+
             }catch{console.log("Couldn't find the user " + idArray[i]+ " to assign them a rank")}        }
     }    
     const channel = client.channels.cache.get('823697167566504009');
