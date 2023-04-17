@@ -5,6 +5,8 @@ const { Client, Collection, Events, GatewayIntentBits,ActivityType} = require('d
 const { MongoClient } = require('mongodb')
 const env = require('dotenv').config()
 const URI = process.env.URI
+const GUILDID = process.env.GUILDID
+const CHANNELID = process.env.CHANNELID
 const TOKEN = process.env.TOKEN;
 const mongoclient = new MongoClient(URI, { useUnifiedTopology: true });
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
@@ -14,7 +16,7 @@ const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('
 
 	mongoclient.connect(async function (err, mongoclient) {
 		global.mongoclient = mongoclient;
-		const update_rankings = require("./update-rankings.js");
+		const update_rankings = require("./update-rankings.js");	 
 
 		for (const file of commandFiles) {
 			const filePath = path.join(commandsPath, file);
@@ -27,7 +29,7 @@ const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('
 			console.log('Ready!');
 			client.user.setActivity(' for /help', { type: ActivityType.Watching });
 			setInterval(() => {
-				try{update_rankings.updateRankings(client);
+				try{update_rankings.updateRankings(client, GUILDID, CHANNELID);
 				}catch{
 					console.log("\nThere was an error while updating rankings\n")
 				}
