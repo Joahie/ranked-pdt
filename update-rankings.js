@@ -5,11 +5,11 @@ const wood = 0.6;
 mongoclient = global.mongoclient;
 const mongoUsers = mongoclient.db("RankedPDT").collection("users");
 
-async function updateRankings(client) {
-    var guild = client.guilds.cache.get("823697167566504006");
+async function updateRankings(client, guild_id, channel_id) {
+    var guild = client.guilds.cache.get(guild_id);
     var changeArray = [];
-    const inactiveUsers = await mongoUsers.find({ wins: 0, losses: 0 }).toArray()
-    const activeUsers = await mongoUsers.find({ $or: [ { wins: { $gt: 0 } }, { losses: { $gt: 0 } } ] } ).toArray()
+    const inactiveUsers = await mongoUsers.find({ wins: 0, losses: 0 ,deleted: {$ne: true}}).toArray()
+    const activeUsers = await mongoUsers.find({ $or: [ { wins: { $gt: 0 } }, { losses: { $gt: 0 } } ] , deleted: {$ne: true}}).toArray()
     for(let i = 0; i < inactiveUsers.length; i++){
         let user = inactiveUsers[i]
         if(user.rank != "st"){
@@ -264,7 +264,7 @@ async function updateRankings(client) {
 
             }catch{console.log("Couldn't find the user " + idArray[i]+ " to assign them a rank")}        }
     }    
-    const channel = client.channels.cache.get('823697167566504009');
+    const channel = client.channels.cache.get(channel_id);
     for(let i = 0; i<changeArray.length; i++){
         channel.send(changeArray[i]);    
     }

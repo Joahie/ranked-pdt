@@ -16,6 +16,20 @@ module.exports = {
 		.addStringOption(option => option.setName('resolution').setDescription('The resolution that was debated').setRequired(true)),
 	async execute(interaction) {
 		try{
+			function compareDate() {
+				var limitDate = new Date(2023, 04, 1, 7, 0);
+				var currentDate = new Date();
+				console.log(currentDate)
+				if (currentDate > limitDate) {
+					 return true;
+				 }else{
+					return false;
+				 }
+			 }
+			 if(compareDate()){
+				return interaction.reply({ content: "Ranked PDT season 1 has ended, so you can't upload round results anymore", ephemeral: true });
+			}
+
 		var gov = interaction.options.getUser('government-team');
 		var opp = interaction.options.getUser('opposition-team');
 		var govVotes = interaction.options.getInteger('government-votes');
@@ -35,7 +49,10 @@ module.exports = {
 		}
 		var govDB = await mongoUsers.findOne({id: gov.id})
 		var oppDB = await mongoUsers.findOne({id: opp.id})
+if(govDB.deleted || oppDB.deleted){
+	return interaction.reply({ content: "At least one of these user's accounts has been deleted", ephemeral: true });
 
+}
 		if(govDB == null && oppDB == null){
 			return interaction.reply({ content: gov.username  + " and " + opp.username + " don't have Ranked PDT accounts", ephemeral: true });
 		}

@@ -22,7 +22,10 @@ module.exports = {
 		}
 		var govDB = await mongoUsers.findOne({id: gov.id})
 		var oppDB = await mongoUsers.findOne({id: opp.id})
-
+		if(govDB.deleted || oppDB.deleted){
+			return interaction.reply({ content: "At least one of these user's accounts has been deleted", ephemeral: true });
+		
+		}
 		if(govDB == null && oppDB == null){
 			return interaction.reply({ content: gov.username  + " and " + opp.username + " don't have Ranked PDT accounts", ephemeral: true });
 		}

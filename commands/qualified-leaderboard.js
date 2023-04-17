@@ -16,7 +16,7 @@ module.exports = {
 		if(leaderboardPage == null){
 			leaderboardPage = 1;
 		}
-		const count = await mongoUsers.count({ wins: { $gt: 2 } });
+		const count = await mongoUsers.count({ wins: { $gt: 2 }, deleted: {$ne: true}});
 		var pages = Math.ceil(count/10)
 		if(pages < leaderboardPage){ 
 			if(pages > 1){
@@ -26,7 +26,7 @@ module.exports = {
 
 			}
 		}
-		const results = await mongoUsers.find({ wins: { $gt: 2 } }).toArray();
+		const results = await mongoUsers.find({ wins: { $gt: 2 }, deleted: {$ne: true}}).toArray();
 		var eloArray = [];
 		var nameArray = [];
 		var idArray = [];

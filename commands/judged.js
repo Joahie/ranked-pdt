@@ -23,6 +23,10 @@ if(judgeDB == null){
 	return interaction.reply({ content: "You don't have a Ranked PDT profile", ephemeral: true });
 
 }
+if(govDB.deleted || oppDB.deleted){
+	return interaction.reply({ content: "At least one of these user's accounts has been deleted", ephemeral: true });
+
+}
 		if(gov.id == interaction.user.id || opp.id == interaction.user.id){
 			return interaction.reply({ content: "You can't judge yourself", ephemeral: true });
 		}

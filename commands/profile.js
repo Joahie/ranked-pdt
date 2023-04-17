@@ -17,6 +17,9 @@ module.exports = {
 			if(results == null){
 				return interaction.reply({ content: "You don't have a Ranked PDT account", ephemeral: true });
 			}
+			if(results.deleted){
+				return interaction.reply({ content: "This user's Ranked PDT account has been deleted", ephemeral: true });
+			}
 			var name = results.firstName +" "+ results.lastName;
 			var elo = results.elo*1;
 			elo = Math.floor(results.elo)
@@ -104,7 +107,7 @@ switch(rank) {
 
 		for(i = 1; i <= eloArray.length; i++){
 			if(i == 1){
-				if(interaction.user.id == eloArray[i-1]){
+				if(interaction.user.id == idArray[i-1]){
 					var ranking = 1;
 				}
 				prevRanking = i;
@@ -125,6 +128,9 @@ switch(rank) {
 
 	}else{
 			const results = await mongoUsers.findOne({id: target.id})
+			if(results.deleted){
+				return interaction.reply({ content: "This user's Ranked PDT account has been deleted", ephemeral: true });
+			}
 			if(results == null){
 				return interaction.reply({ content: target.username  + " doesn't have a Ranked PDT account", ephemeral: true });
 			}

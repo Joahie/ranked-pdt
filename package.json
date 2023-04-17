@@ -1,7 +1,7 @@
 {
   "name": "discord-bot",
   "version": "1.0.0",
-  "description": "",
+  "description": "A Discord bot for parliamentary debaters that allows them to upload the results of rounds. It ranks debaters using an elo system.",
   "main": "Index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -14,5 +14,15 @@
     "dotenv": "^16.0.3",
     "mongodb": "^4.6.0",
     "mongoose": "^7.0.1"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Joahie/discord.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/Joahie/discord/issues"
+  },
+  "homepage": "https://github.com/Joahie/discord#readme"
 }
