@@ -26,8 +26,8 @@ module.exports = {
 		const d = new Date();
 		const month = d.getMonth() + 1
 		const dateFormatted = month + "/" + d.getDate() + "/" + d.getFullYear();
-		await mongoUsers.insertOne({id: interaction.user.id, firstName: firstName, lastName: lastName, club: club, state: state, dateJoined: dateFormatted, elo: 1000, wins: 0, losses: 0, eloBoosts: 0, topElo: 1000, diamond: false, rank: "st"})
-		const results1 = await mongoUsers.find({}).toArray();
+		await mongoUsers.insertOne({id: interaction.user.id, firstName: firstName, lastName: lastName, club: club, state: state, dateJoined: dateFormatted, elo: 1000, wins: 0, losses: 0, eloBoosts: 0, topElo: 1000, diamond: false, rank: "st", topEloLifetime: 1000})
+		const results1 = await mongoUsers.find({deleted: {$ne: true}}).toArray();
 		var eloArray = [];
 		var idArray = [];
 		for(i = 0; i<results1.length; i++){
@@ -87,11 +87,12 @@ module.exports = {
 		
 	.setTitle(name + "'s Ranked PDT Profile")
 	.addFields(
-		{ name: 'Elo', value: '1000', inline: true},
-    		{ name: 'Highest Elo', value: "1000", inline: true },
+			{ name: 'Elo', value: '1000', inline: true},
+    		{ name: 'Highest Elo (Lifetime)', value: "1000", inline: true },
+			{ name: 'Highest Elo (Seasonal)', value: "1000", inline: true },
     		{ name: 'Elo Boosts (1.2x)', value: "0", inline: true },
 
-		{ name: 'Ranking', value: ranking, inline: true },
+		{ name: 'Rank', value: ranking, inline: true },
 		{ name: 'Record', value: "0-0", inline: true },
 
 		{ name: 'Club', value: club, inline: true },

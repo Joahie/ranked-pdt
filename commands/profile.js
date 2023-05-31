@@ -32,6 +32,7 @@ module.exports = {
 			var state = results.state;
 			var dateJoined = results.dateJoined;
 			var topElo = Math.floor(results.topElo);
+			var topEloLifetime = Math.floor(results.topEloLifetime);
 			var rank = results.rank;
 			var diamond = results.diamond;
 			var color;
@@ -66,8 +67,9 @@ switch(rank) {
 }
 
 			topElo = topElo + ""
+			topEloLifetime = topEloLifetime + ""
 
-		const results1 = await mongoUsers.find({}).toArray();
+		const results1 = await mongoUsers.find({deleted: {$ne: true}}).toArray();
 		var eloArray = [];
 		var idArray = [];
 		for(i = 0; i<results1.length; i++){
@@ -137,6 +139,9 @@ switch(rank) {
 			var eloBoosts = results.eloBoosts + "";
 			var topElo = Math.floor(results.topElo);
 			topElo = topElo + ""
+			var topEloLifetime = Math.floor(results.topEloLifetime);
+			topEloLifetime = topEloLifetime + ""
+
 			var name = results.firstName +" "+  results.lastName;
 			var elo = results.elo*1;
 			elo = Math.floor(results.elo)
@@ -147,7 +152,7 @@ switch(rank) {
 			var wlr = wins + "-" + losses;
 			var state = results.state;
 			var dateJoined = results.dateJoined;		
-			const results1 = await mongoUsers.find({}).toArray();
+			const results1 = await mongoUsers.find({deleted: {$ne: true}}).toArray();
 			var eloArray = [];
 			var idArray = [];
 			var rank = results.rank;
@@ -245,11 +250,11 @@ switch(rank) {
 	.setTitle(name + "'s Ranked PDT Profile")
 	.addFields(
 		{ name: 'Elo', value: elo, inline: true},
-		{ name: 'Highest Elo', value: topElo, inline: true },
+		{ name: 'Highest Elo (Lifetime)', value: topEloLifetime, inline: true },
+		{ name: 'Highest Elo (Seasonal)', value: topElo, inline: true },
 		{ name: 'Elo Boosts (1.2x)', value: eloBoosts, inline: true },
-		{ name: 'Ranking', value: ranking, inline: true },
+		{ name: 'Rank', value: ranking, inline: true },
 		{ name: 'Record', value: wlr, inline: true },
-
 		{ name: 'Club', value: club, inline: true },
 		{ name: 'State', value: state, inline: true },
 	)

@@ -17,6 +17,9 @@ module.exports = {
 			leaderboardPage = 1;
 		}
 		const count = await mongoUsers.count({ wins: { $gt: 2 }, deleted: {$ne: true}});
+		if(count == 0){
+			return interaction.reply({content: "Currently no debaters are qualified"})
+		}
 		var pages = Math.ceil(count/10)
 		if(pages < leaderboardPage){ 
 			if(pages > 1){

@@ -144,15 +144,26 @@ var cancelId = "cancel" +  uuid;
 		}else{
            var newGovHighElo = govProfile.topElo;
          }
-         
+         console.log(results.govChangeHighEloLifetime)
+         if(results.govChangeHighEloLifetime){
+			console.log(newGovElo)
+			var newGovHighEloLifetime = newGovElo;
+		}else{
+           var newGovHighEloLifetime = govProfile.topEloLifetime;
+         }
          if(results.oppChangeHighElo){
            var newOppHighElo = newOppElo;
          }else{
            var newOppHighElo = oppProfile.topElo;
          }
+		 if(results.oppChangeHighEloLifetime){
+			var newOppHighEloLifetime = newOppElo;
+		}else{
+           var newOppHighEloLifetime = oppProfile.topEloLifetime;
+         }
 
-				await mongoUsers.updateOne({id: findRound.govDebater}, {$set:{elo: newGovElo, wins: newGovWins,losses:newGovLosses, eloBoosts: newGovBoost, topElo: newGovHighElo}});
-				await mongoUsers.updateOne({id: findRound.oppDebater}, {$set:{elo: newOppElo, wins: newOppWins,losses:newOppLosses, eloBoosts: newOppBoost, topElo: newOppHighElo}});		
+				await mongoUsers.updateOne({id: findRound.govDebater}, {$set:{elo: newGovElo, wins: newGovWins,losses:newGovLosses, eloBoosts: newGovBoost, topElo: newGovHighElo, topEloLifetime: newGovHighEloLifetime}});
+				await mongoUsers.updateOne({id: findRound.oppDebater}, {$set:{elo: newOppElo, wins: newOppWins,losses:newOppLosses, eloBoosts: newOppBoost, topElo: newOppHighElo, topEloLifetime: newOppHighEloLifetime}});		
 				await mongoRounds.deleteOne({id: roundID});		
 				return interaction.followUp({content:"The results of round #"+displayID+" have been deleted"});
 		   }else if(i.customId == cancelId){
