@@ -33,7 +33,7 @@ const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('
 				}catch{
 					console.log("\nThere was an error while updating rankings\n")
 				}
-			  }, 1000*60*60*2);
+			  }, 1000*60*1000);
 		});
 		client.on('guildMemberAdd', async member => {
 			member.send("Welcome to the Ranked PDT server! To create an account, head to <#1085212287603843185> and use the </register:1085225509870379101> command. To see the rest of my commands, use the </help:1085953726705045677> command.");
@@ -47,9 +47,9 @@ const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('
 		client.on(Events.InteractionCreate, async interaction => {
 			
 			if (!interaction.isChatInputCommand()) return;
-			if(interaction.channel.id != 1085212287603843185 && interaction.user.id != 681913214744789118 && interaction.user.id != 735892514481111042){
+			/*if(interaction.channel.id != 1085212287603843185 && interaction.user.id != 681913214744789118 && interaction.user.id != 735892514481111042){
 				return interaction.reply({ content: "Commands only work in <#1085212287603843185>", ephemeral: true });
-			}
+			}*/
 			const command = client.commands.get(interaction.commandName);
 		
 			if (!command) return;

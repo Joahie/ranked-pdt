@@ -6,10 +6,12 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('what-if')
 		.setDescription("Tells debaters the change in elo that would occur based off of the results of a hypothetical round")
-		.addUserOption(option => option.setName('government-team').setDescription('Debater on the government team').setRequired(true))
-		.addUserOption(option => option.setName('opposition-team').setDescription('Debater on the opposition team').setRequired(true))
+		.addUserOption(option => option.setName('government-team-one').setDescription('First debater on the government team').setRequired(true))
+		.addUserOption(option => option.setName('opposition-team-one').setDescription('First debater on the opposition team').setRequired(true))
 		.addIntegerOption(option => option.setName('government-votes').setDescription('Number of judges who voted government').setRequired(true))
-		.addIntegerOption(option => option.setName('opposition-votes').setDescription('Number of judges who voted opposition').setRequired(true)),
+		.addIntegerOption(option => option.setName('opposition-votes').setDescription('Number of judges who voted opposition').setRequired(true))
+		.addUserOption(option => option.setName('government-team-two').setDescription('Second debater on the government team').setRequired(true))
+		.addUserOption(option => option.setName('opposition-team-two').setDescription('Second debater on the opposition team').setRequired(true)),
 	async execute(interaction) {
 		try{
 		var gov = interaction.options.getUser('government-team');

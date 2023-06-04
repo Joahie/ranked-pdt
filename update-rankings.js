@@ -65,7 +65,8 @@ async function updateRankings(client, guild_id, channel_id) {
             var role = member.guild.roles.cache.find(role => role.name == "Stone");
             member.roles.add(role);
         }
-    }catch{console.log("Couldn't find the user " + user.id+ " to assign them a rank")}
+    }catch{console.log("Couldn't find the user " + user.id+ " to assign them a rank")
+  }
     }
     var eloArray = [];
     var idArray = [];
@@ -78,7 +79,9 @@ async function updateRankings(client, guild_id, channel_id) {
         rankArray.push(user.rank)
         diamondArray.push(user.diamond)
     }
-
+    if(eloArray.length == 0){
+      return;
+    }
     sortedArrays = quickSortFourArraysDescending(eloArray, idArray, rankArray, diamondArray)
     eloArray = sortedArrays[0]
     idArray = sortedArrays[1]
@@ -96,7 +99,6 @@ async function updateRankings(client, guild_id, channel_id) {
     var bronzeU = bronzeNumber +silverNumber+goldNumber- 1;
     var woodB = bronzeNumber;
     var woodU = activeUsers.length;
-    
     while(eloArray[goldU] == eloArray[silverB]){
         if(silverB+1 == silverU){
             break;
@@ -117,7 +119,8 @@ async function updateRankings(client, guild_id, channel_id) {
         }
         woodB++;
         bronzeU++;
-    }
+    }    
+
     for(let i = 0; i < eloArray.length; i++){
         if(i<=2){
             if(!diamondArray[i]){
@@ -131,7 +134,8 @@ async function updateRankings(client, guild_id, channel_id) {
                     var diamondRole = member.guild.roles.cache.find(role => role.name == "Diamond");
                     await member.roles.add(diamondRole);
                 }                
-            }catch{console.log("Couldn't find the user " + idArray[i]+ " to assign them a rank")}        }else{
+            }catch{console.log("Couldn't find the user " + idArray[i]+ " to assign them a rank")}        
+        }else{
             if(diamondArray[i]){
                 await mongoUsers.updateOne({id: idArray[i]}, {$set:{diamond: false}});
                 let results = await mongoUsers.findOne({id: idArray[i]});
@@ -263,11 +267,14 @@ async function updateRankings(client, guild_id, channel_id) {
                 }
 
             }catch{console.log("Couldn't find the user " + idArray[i]+ " to assign them a rank")}        }
+            
     }    
+    console.log("kinda done")
     const channel = client.channels.cache.get(channel_id);
     for(let i = 0; i<changeArray.length; i++){
         channel.send(changeArray[i]);    
     }
+    return console.log("DONE");
 }
 function quickSortFourArraysDescending(arr1, arr2, arr3, arr4) {
     if (arr1.length <= 1) {
