@@ -24,10 +24,7 @@ module.exports = {
 		}
 		var govDB = await mongoUsers.findOne({id: gov.id})
 		var oppDB = await mongoUsers.findOne({id: opp.id})
-		if(govDB.deleted || oppDB.deleted){
-			return interaction.reply({ content: "At least one of these user's accounts has been deleted", ephemeral: true });
-		
-		}
+
 		if(govDB == null && oppDB == null){
 			return interaction.reply({ content: gov.username  + " and " + opp.username + " don't have Ranked PDT accounts", ephemeral: true });
 		}
@@ -36,6 +33,9 @@ module.exports = {
 		}
 		if(oppDB == null){
 			return interaction.reply({ content: opp.username + " doesn't have a Ranked PDT account", ephemeral: true });
+		}
+		if(govDB.deleted || oppDB.deleted){
+			return interaction.reply({ content: "At least one of these user's accounts has been deleted", ephemeral: true });
 		}
 		if(govVotes < 0 || oppVotes < 0){
 			return interaction.reply({ content: "You can't have a negative number of votes for a team", ephemeral: true });
