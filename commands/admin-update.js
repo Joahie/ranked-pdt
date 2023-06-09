@@ -132,19 +132,22 @@ module.exports = {
 				let sortArray = [oppDB1.lastName, oppDB2.lastName]
 				sortArray.sort()
 				var winnerDeclaration = sortArray[0] + "/" +  sortArray[1]			}
-			
+			var	govBoost1 = false
+			var	govBoost2 = false
 			if(govDB1.eloBoosts > govDB2.eloBoosts){
 				var govEloBooster = govDB1;
 				var govBoosterFullName = govFullName1;
 				var doGovBoosts = true;
 				var govEloBoostsRemaining1 = govDB1.eloBoosts*1-1;
 				var govEloBoostsRemaining2 = govDB2.eloBoosts;
+				govBoost1 = true
 			}else if(govDB1.eloBoosts < govDB2.eloBoosts){
 				var govEloBooster = govDB2;
 				var govBoosterFullName = govFullName2;
 				var doGovBoosts = true;
 				var govEloBoostsRemaining1 = govDB1.eloBoosts;
 				var govEloBoostsRemaining2 = govDB2.eloBoosts*1-1;
+				govBoost2 = true
 			}else if(govDB1.eloBoosts == 0){
 				var doGovBoosts = false;
 				var govEloBoostsRemaining1 = govDB1.eloBoosts;
@@ -156,25 +159,31 @@ module.exports = {
 					var govBoosterFullName = govFullName2;
 					var govEloBoostsRemaining1 = govDB1.eloBoosts;
 					var govEloBoostsRemaining2 = govDB2.eloBoosts*1-1;
+					govBoost2 = true
 				}else{
 					var govEloBooster = govDB1;
 					var govBoosterFullName = govFullName1;
 					var govEloBoostsRemaining1 = govDB1.eloBoosts*1-1;
 					var govEloBoostsRemaining2 = govDB2.eloBoosts;
+					govBoost1 = true
 				}
 			}
+			oppBoost1 = false
+			oppBoost2 = false
 			if(oppDB1.eloBoosts > oppDB2.eloBoosts){
 				var oppEloBooster = oppDB1;
 				var oppBoosterFullName = oppFullName1;
 				var dooppBoosts = true;
 				var oppEloBoostsRemaining1 = oppDB1.eloBoosts*1-1;
 				var oppEloBoostsRemaining2 = oppDB2.eloBoosts;
+				oppBoost1 = true
 			}else if(oppDB1.eloBoosts < oppDB2.eloBoosts){
 				var oppEloBooster = oppDB2;
 				var oppBoosterFullName = oppFullName2;
 				var dooppBoosts = true;
 				var oppEloBoostsRemaining1 = oppDB1.eloBoosts;
 				var oppEloBoostsRemaining2 = oppDB2.eloBoosts*1-1;
+				oppBoost2= true
 			}else if(oppDB1.eloBoosts == 0){
 				var dooppBoosts = false;
 				var oppEloBoostsRemaining1 = oppDB1.eloBoosts;
@@ -186,11 +195,13 @@ module.exports = {
 					var oppBoosterFullName = oppFullName2;
 					var oppEloBoostsRemaining1 = oppDB1.eloBoosts;
 					var oppEloBoostsRemaining2 = oppDB2.eloBoosts*1-1;
+					oppBoost2 = true
 				}else{
 					var oppEloBooster = oppDB1;
 					var oppBoosterFullName = oppFullName1;
 					var oppEloBoostsRemaining1 = oppDB1.eloBoosts*1-1;
 					var oppEloBoostsRemaining2 = oppDB2.eloBoosts;
+					oppBoost1 = true
 				}
 			}
 			if(doGovBoosts){
@@ -401,7 +412,7 @@ if(dooppBoosts){
 						var oppHighEloLifetime2 = ""
 						var oppChangeHighEloLifetime2 = false;
 					}
-					await mongoRounds.insertOne({id: amountOfRounds, displayID: roundID, govDebater1: govDB1.id,govDebater2: govDB2.id, oppDebater1: oppDB1.id,oppDebater2: oppDB2.id, govVotes: govVotes, oppVotes: oppVotes, resolution: resolution, date: dateFormatted, govElo1: R_G1,govElo2: R_G2,oppElo1: R_O1,oppElo2: R_O2,govEloChange1: govEloChange1, govEloChange2: govEloChange2, oppEloChange1: oppEloChange1,oppEloChange2: oppEloChange2, winner1: winner1, winner2: winner2, govBoost: govBoostBoolean,govBoosterName: govBoosterFullName, oppBoost: oppBoostBoolean,oppBoosterName: oppBoosterFullName, govChangeHighElo1: govChangeHighElo1, govChangeHighElo2: govChangeHighElo2, oppChangeHighElo1:oppChangeHighElo1,oppChangeHighElo2:oppChangeHighElo2, govChangeHighEloLifetime1: govChangeHighEloLifetime1,  govChangeHighEloLifetime2: govChangeHighEloLifetime2, oppChangeHighEloLifetime1:oppChangeHighEloLifetime1,  oppChangeHighEloLifetime2:oppChangeHighEloLifetime2})
+					await mongoRounds.insertOne({id: amountOfRounds, displayID: roundID, govDebater1: govDB1.id,govDebater2: govDB2.id, oppDebater1: oppDB1.id,oppDebater2: oppDB2.id, govVotes: govVotes, oppVotes: oppVotes, resolution: resolution, date: dateFormatted, govElo1: R_G1,govElo2: R_G2,oppElo1: R_O1,oppElo2: R_O2,govEloChange1: govEloChange1, govEloChange2: govEloChange2, oppEloChange1: oppEloChange1,oppEloChange2: oppEloChange2, winner1: winner1, winner2: winner2, govBoost: govBoostBoolean,govBoosterName: govBoosterFullName, oppBoost: oppBoostBoolean,oppBoosterName: oppBoosterFullName, govChangeHighElo1: govChangeHighElo1, govChangeHighElo2: govChangeHighElo2, oppChangeHighElo1:oppChangeHighElo1,oppChangeHighElo2:oppChangeHighElo2, govChangeHighEloLifetime1: govChangeHighEloLifetime1,  govChangeHighEloLifetime2: govChangeHighEloLifetime2, oppChangeHighEloLifetime1:oppChangeHighEloLifetime1,  oppChangeHighEloLifetime2:oppChangeHighEloLifetime2,govOriginalSeasonalElo1: govDB1.topElo,govOriginalLifetimeElo1: govDB1.topEloLifetime, oppOriginalSeasonalElo1: oppDB1.topElo,oppOriginalLifetimeElo1: oppDB1.topEloLifetime, govOriginalSeasonalElo2: govDB2.topElo,govOriginalLifetimeElo2: govDB2.topEloLifetime, oppOriginalSeasonalElo2: oppDB2.topElo,oppOriginalLifetimeElo2: oppDB2.topEloLifetime, govBoost1: govBoost1, govBoost2: govBoost2, oppBoost1: oppBoost1, oppBoost2: oppBoost2})
 					await mongoRounds.updateOne({id: "Count"},{$set:{count: newCount}})
 					if(gov_votes > opp_votes){
 						var newGovWins1 = govDB1.wins*1 + 1
@@ -538,7 +549,7 @@ if(dooppBoosts){
 						var oppHighEloLifetime2 = ""
 						var oppChangeHighEloLifetime2 = false;
 					}
-					await mongoRounds.insertOne({id: amountOfRounds, displayID: roundID, govDebater1: govDB1.id,govDebater2: govDB2.id, oppDebater1: oppDB1.id,oppDebater2: oppDB2.id, govVotes: govVotes, oppVotes: oppVotes, resolution: resolution, date: dateFormatted, govElo1: R_G1,govElo2: R_G2,oppElo1: R_O1,oppElo2: R_O2,govEloChange1: govEloChange1, govEloChange2: govEloChange2, oppEloChange1: oppEloChange1,oppEloChange2: oppEloChange2, winner1: winner1, winner2: winner2, govBoost: govBoostBoolean,govBoosterName: govBoosterFullName, oppBoost: oppBoostBoolean,oppBoosterName: oppBoosterFullName, govChangeHighElo1: govChangeHighElo1, govChangeHighElo2: govChangeHighElo2, oppChangeHighElo1:oppChangeHighElo1,oppChangeHighElo2:oppChangeHighElo2, govChangeHighEloLifetime1: govChangeHighEloLifetime1,  govChangeHighEloLifetime2: govChangeHighEloLifetime2, oppChangeHighEloLifetime1:oppChangeHighEloLifetime1,  oppChangeHighEloLifetime2:oppChangeHighEloLifetime2})
+					await mongoRounds.insertOne({id: amountOfRounds, displayID: roundID, govDebater1: govDB1.id,govDebater2: govDB2.id, oppDebater1: oppDB1.id,oppDebater2: oppDB2.id, govVotes: govVotes, oppVotes: oppVotes, resolution: resolution, date: dateFormatted, govElo1: R_G1,govElo2: R_G2,oppElo1: R_O1,oppElo2: R_O2,govEloChange1: govEloChange1, govEloChange2: govEloChange2, oppEloChange1: oppEloChange1,oppEloChange2: oppEloChange2, winner1: winner1, winner2: winner2, govBoost: govBoostBoolean,govBoosterName: govBoosterFullName, oppBoost: oppBoostBoolean,oppBoosterName: oppBoosterFullName, govChangeHighElo1: govChangeHighElo1, govChangeHighElo2: govChangeHighElo2, oppChangeHighElo1:oppChangeHighElo1,oppChangeHighElo2:oppChangeHighElo2, govChangeHighEloLifetime1: govChangeHighEloLifetime1,  govChangeHighEloLifetime2: govChangeHighEloLifetime2, oppChangeHighEloLifetime1:oppChangeHighEloLifetime1,  oppChangeHighEloLifetime2:oppChangeHighEloLifetime2,govOriginalSeasonalElo1: govDB1.topElo,govOriginalLifetimeElo1: govDB1.topEloLifetime, oppOriginalSeasonalElo1: oppDB1.topElo,oppOriginalLifetimeElo1: oppDB1.topEloLifetime, govOriginalSeasonalElo2: govDB2.topElo,govOriginalLifetimeElo2: govDB2.topEloLifetime, oppOriginalSeasonalElo2: oppDB2.topElo,oppOriginalLifetimeElo2: oppDB2.topEloLifetime, govBoost1: govBoost1, govBoost2: govBoost2, oppBoost1: oppBoost1, oppBoost2: oppBoost2})
 					await mongoRounds.updateOne({id: "Count"},{$set:{count: newCount}})
 					if(gov_votes > opp_votes){
 						var newGovWins1 = govDB1.wins*1 + 1
@@ -804,7 +815,7 @@ if(dooppBoosts){
 							var oppChangeHighElo = false;
 							
 						}
-						await mongoRounds.insertOne({id: amountOfRounds, displayID: roundID, govDebater: gov.id, oppDebater: opp.id, govVotes: govVotes, oppVotes: oppVotes, resolution: resolution, date: dateFormatted, govElo: R_G,oppElo: R_O,govEloChange: govEloChange, oppEloChange: oppEloChange, winner: winner, govBoost: govBoostBoolean, oppBoost: oppBoostBoolean , govChangeHighElo: govChangeHighElo, oppChangeHighElo:oppChangeHighElo, govChangeHighEloLifetime: govChangeHighEloLifetime, oppChangeHighEloLifetime:oppChangeHighEloLifetime })
+						await mongoRounds.insertOne({id: amountOfRounds, displayID: roundID, govDebater: gov.id, oppDebater: opp.id, govVotes: govVotes, oppVotes: oppVotes, resolution: resolution, date: dateFormatted, govElo: R_G,oppElo: R_O,govEloChange: govEloChange, oppEloChange: oppEloChange, winner: winner, govBoost: govBoostBoolean, oppBoost: oppBoostBoolean , govChangeHighElo: govChangeHighElo, oppChangeHighElo:oppChangeHighElo, govChangeHighEloLifetime: govChangeHighEloLifetime, oppChangeHighEloLifetime:oppChangeHighEloLifetime ,govOriginalSeasonalElo: govDB.topElo,govOriginalLifetimeElo: govDB.topEloLifetime, oppOriginalSeasonalElo: oppDB.topElo,oppOriginalLifetimeElo: oppDB.topEloLifetime})
 	
 						await mongoRounds.updateOne({id: "Count"},{$set:{count: newCount}})
 						if(gov_votes > opp_votes){
@@ -900,7 +911,7 @@ if(dooppBoosts){
 						var oppHighElo = ""
 						var oppChangeHighElo = false;
 					}
-					await mongoRounds.insertOne({id: amountOfRounds, displayID: roundID, govDebater: gov.id, oppDebater: opp.id, govVotes: govVotes, oppVotes: oppVotes, resolution: resolution, date: dateFormatted, govElo: R_G,oppElo: R_O,govEloChange: govEloChange, oppEloChange: oppEloChange, winner: winner, govBoost: govBoostBoolean, oppBoost: oppBoostBoolean , govChangeHighElo: govChangeHighElo, oppChangeHighElo:oppChangeHighElo , govChangeHighEloLifetime: govChangeHighEloLifetime, oppChangeHighEloLifetime: oppChangeHighEloLifetime})
+					await mongoRounds.insertOne({id: amountOfRounds, displayID: roundID, govDebater: gov.id, oppDebater: opp.id, govVotes: govVotes, oppVotes: oppVotes, resolution: resolution, date: dateFormatted, govElo: R_G,oppElo: R_O,govEloChange: govEloChange, oppEloChange: oppEloChange, winner: winner, govBoost: govBoostBoolean, oppBoost: oppBoostBoolean , govChangeHighElo: govChangeHighElo, oppChangeHighElo:oppChangeHighElo , govChangeHighEloLifetime: govChangeHighEloLifetime, oppChangeHighEloLifetime: oppChangeHighEloLifetime,govOriginalSeasonalElo: govDB.topElo,govOriginalLifetimeElo: govDB.topEloLifetime, oppOriginalSeasonalElo: oppDB.topElo,oppOriginalLifetimeElo: oppDB.topEloLifetime})
 		await mongoRounds.updateOne({id: "Count"},{$set:{count: newCount}})
 			if(gov_votes > opp_votes){
 				var newGovWins = govDB.wins*1 + 1
