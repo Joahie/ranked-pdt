@@ -16,7 +16,7 @@ module.exports = {
 		if(leaderboardPage == null){
 			leaderboardPage = 1;
 		}
-		const count = await mongoUsers.count({deleted: {$ne: true}});
+    const count = await mongoUsers.count({ $or: [ { wins: { $gt: 0 } }, { losses: { $gt: 0 } } ] , deleted: {$ne: true}})
 		var pages = Math.ceil(count/10)
 		if(pages < leaderboardPage){ 
 			if(pages > 1){
@@ -26,7 +26,7 @@ module.exports = {
 
 			}
 		}
-		const results = await mongoUsers.find({deleted: {$ne: true}}).toArray();
+    const results = await mongoUsers.find({ $or: [ { wins: { $gt: 0 } }, { losses: { $gt: 0 } } ] , deleted: {$ne: true}}).toArray()
 		var eloArray = [];
 		var nameArray = [];
 		var idArray = [];
@@ -83,6 +83,7 @@ module.exports = {
 		for(i = 1; i <= eloArray.length; i++){
 			if(i == 1){
 				line = "``"+i + ".`` " +Math.floor(eloArray[i-1]) + " - " + nameArray[i-1] + " (<@" + idArray[i-1] + ">)"
+        var ranking = 1;
 				prevRanking = i;
 			}else{
 				if(prevElo == eloArray[i-1]){
