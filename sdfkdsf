@@ -1,3 +1,0 @@
-var oppTeamEmbed = "Team: " + oppTeamName + " ("+oppTeamPing+")\nVotes: " + oppVotes + oppEloBoost;
-			var oppDebaterEmbed1 = "Elo: +"+Math.floor(oppEloChange1) + " ["+Math.floor(originaloppElo1)+" ➜ " +Math.floor(R_G1)+"]"
-			var oppDebaterEmbed2 = "Elo: +"+Math.floor(oppEloChange2) + " ["+Math.floor(originaloppElo2)+" ➜ " +Math.floor(R_G2)+"]"
