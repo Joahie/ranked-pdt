@@ -204,39 +204,46 @@ module.exports = {
 					oppBoost1 = true
 				}
 			}
+       if(govWon){
+      var govAutoBoost = 1.25;
+      var oppAutoBoost = 0.75
+    }else{
+      var govAutoBoost = 0.75
+      var oppAutoBoost = 1.25;
+    }
 			if(doGovBoosts){
 				govBoostBoolean = true;
 				if(govWon){
-					R_G1 = R_G1 + 1.2 * 80 * (S_G - E_G1)
-					R_G2 = R_G2 + 1.2 * 80 * (S_G - E_G2)
+					R_G1 = R_G1 + 1.2 *govAutoBoost* 80 * (S_G - E_G1)
+					R_G2 = R_G2 + 1.2 *govAutoBoost* 80 * (S_G - E_G2)
 				}else{
-					R_G1 = R_G1 + 80 * (S_G - E_G1)
-					R_G2 = R_G2 + 80 * (S_G - E_G2)
+					R_G1 = R_G1 + 80 *govAutoBoost* (S_G - E_G1)
+					R_G2 = R_G2 + 80 *govAutoBoost* (S_G - E_G2)
 				}
 				let remaining = govEloBooster.eloBoosts - 1
 				var govEloBoost = "\n" +govBoosterFullName  + " used an elo boost. They have " + remaining + " remaining."
 			}else{
 				govBoostBoolean = false;
-				R_G1 = R_G1 + 80 * (S_G - E_G1)
-				R_G2 = R_G2 + 80 * (S_G - E_G2)
+				R_G1 = R_G1 + 80 *govAutoBoost* (S_G - E_G1)
+				R_G2 = R_G2 + 80 *govAutoBoost* (S_G - E_G2)
 				var govEloBoost = ""
 			}
 
 if(dooppBoosts){
     oppBoostBoolean = true;
     if(oppWon){
-        R_O1 = R_O1 + 1.2 * 80 * (S_O - E_O1)
-        R_O2 = R_O2 + 1.2 * 80 * (S_O - E_O2)
+        R_O1 = R_O1 + 1.2 *oppAutoBoost* 80 * (S_O - E_O1)
+        R_O2 = R_O2 + 1.2 *oppAutoBoost* 80 * (S_O - E_O2)
     }else{
-        R_O1 = R_O1 + 80 * (S_O - E_O1)
-        R_O2 = R_O2 + 80 * (S_O - E_O2)
+        R_O1 = R_O1 + 80 *oppAutoBoost* (S_O - E_O1)
+        R_O2 = R_O2 + 80 *oppAutoBoost* (S_O - E_O2)
     }
     let remaining = oppEloBooster.eloBoosts - 1
     var oppEloBoost = "\n" +oppBoosterFullName  + " used an elo boost. They have " + remaining + " remaining."
 }else{
     oppBoostBoolean = false;
-    R_O1 = R_O1 + 80 * (S_O - E_O1)
-    R_O2 = R_O2 + 80 * (S_O - E_O2)
+    R_O1 = R_O1 + 80 *oppAutoBoost* (S_O - E_O1)
+    R_O2 = R_O2 + 80 *oppAutoBoost* (S_O - E_O2)
     var oppEloBoost = ""
 }
 			if(R_G1 < 0){
@@ -677,31 +684,38 @@ if(dooppBoosts){
 				var winner = oppDB.id;
 				var winnerDeclaration = oppFullName + " (<@" + opp.id+">)"
 			}
+       if(govWon){
+      var govAutoBoost = 1.25;
+      var oppAutoBoost = 0.75
+    }else{
+      var govAutoBoost = 0.75
+      var oppAutoBoost = 1.25;
+    }
 			if(govDB.eloBoosts > 0){
 				govBoostBoolean = true;
 				if(govWon){
-					R_G = R_G + 1.2 * 80 * (S_G - E_G) 
+					R_G = R_G + 1.2 * 80 *govAutoBoost* (S_G - E_G) 
 				}else{
-					R_G = R_G + 80 * (S_G - E_G) 
+					R_G = R_G + 80 *govAutoBoost* (S_G - E_G) 
 				}
 				let remaining = govDB.eloBoosts - 1
 				var govEloBoost = "\n" +govFullName  + " used an elo boost. They have " + remaining + " remaining."
 			}else{
 				govBoostBoolean = false;
-				R_G = R_G + 80 * (S_G - E_G)
+				R_G = R_G + 80 *govAutoBoost* (S_G - E_G)
 				var govEloBoost = ""
 			}
 			if(oppDB.eloBoosts > 0){
 				oppBoostBoolean = true;
 				if(!govWon){
-					R_O = R_O + 1.2 * 80 * (S_O - E_O) 
+					R_O = R_O + 1.2 *oppAutoBoost* 80 * (S_O - E_O) 
 				}else{
-					R_O = R_O + 80 * (S_O - E_O) 
+					R_O = R_O + 80 *oppAutoBoost* (S_O - E_O) 
 				}			let remaining = oppDB.eloBoosts - 1
 				var oppEloBoost = "\n" + oppFullName  + " used an elo boost. They have " + remaining + " remaining."
 			}else{
 				oppBoostBoolean = false;
-				R_O = R_O + 80 * (S_O - E_O)
+				R_O = R_O + 80 *oppAutoBoost* (S_O - E_O)
 				var oppEloBoost = ""
 			}
 			if(R_G < 0){
