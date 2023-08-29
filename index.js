@@ -14,6 +14,9 @@ client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
+const now = new Date();
+const targetDate = new Date('2023-09-17T00:00:00-07:00');
+
 mongoclient.connect(async function (err, mongoclient) {
 	global.mongoclient = mongoclient;
 	const update_rankings = require("./update-rankings.js");	 
@@ -49,8 +52,13 @@ mongoclient.connect(async function (err, mongoclient) {
 	client.on(Events.InteractionCreate, async interaction => {
 		
 		if (!interaction.isChatInputCommand()) return;
+	
+		
 		if(interaction.channel.id != 1085212287603843185 && interaction.user.id != 681913214744789118 && interaction.user.id != 735892514481111042){
 			return interaction.reply({ content: "Commands only work in <#1085212287603843185>", ephemeral: true });
+		}
+		if (now > targetDate && interaction.commandName == "update") {
+			return interaction.reply({ content: "Rounds may no longer be reported because the current Ranked PDT season is over", ephemeral: true });
 		}
 		const command = client.commands.get(interaction.commandName);
 	
