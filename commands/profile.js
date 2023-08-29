@@ -13,7 +13,7 @@ module.exports = {
 		try{
 			const target = interaction.options.getUser('target');
 		if(target==null){
-			const results = await mongoUsers.findOne({id: interaction.user.id})
+			var results = await mongoUsers.findOne({id: interaction.user.id})
 			if(results == null){
 				return interaction.reply({ content: "You don't have a Ranked PDT account", ephemeral: true });
 			}
@@ -69,7 +69,7 @@ switch(rank) {
 			topElo = topElo + ""
 			topEloLifetime = topEloLifetime + ""
 
-		const results1 = await mongoUsers.find({deleted: {$ne: true}}).toArray();
+		const results1 =  await mongoUsers.find({ $or: [ { wins: { $gt: 0 } }, { losses: { $gt: 0 } } ] , deleted: {$ne: true}}).toArray()
 		var eloArray = [];
 		var idArray = [];
 		for(i = 0; i<results1.length; i++){
@@ -129,12 +129,12 @@ switch(rank) {
 		}
 
 	}else{
-			const results = await mongoUsers.findOne({id: target.id})
-			if(results.deleted){
-				return interaction.reply({ content: "This user's Ranked PDT account has been deleted", ephemeral: true });
-			}
+			var results = await mongoUsers.findOne({id: target.id})
 			if(results == null){
 				return interaction.reply({ content: target.username  + " doesn't have a Ranked PDT account", ephemeral: true });
+			}
+      			if(results.deleted){
+				return interaction.reply({ content: "This user's Ranked PDT account has been deleted", ephemeral: true });
 			}
 			var eloBoosts = results.eloBoosts + "";
 			var topElo = Math.floor(results.topElo);
@@ -152,7 +152,7 @@ switch(rank) {
 			var wlr = wins + "-" + losses;
 			var state = results.state;
 			var dateJoined = results.dateJoined;		
-			const results1 = await mongoUsers.find({deleted: {$ne: true}}).toArray();
+			const results1 = await mongoUsers.find({ $or: [ { wins: { $gt: 0 } }, { losses: { $gt: 0 } } ] , deleted: {$ne: true}}).toArray()
 			var eloArray = [];
 			var idArray = [];
 			var rank = results.rank;
@@ -244,7 +244,12 @@ switch(rank) {
 				prevElo = eloArray[i-1]	
 			}
 		}
+    
+
 		ranking = "#"+ ranking
+      if(results.wins == 0 && results.losses == 0){
+        ranking = "This user hasn't competed"
+      }
 		const embed = new EmbedBuilder()
 	.setColor(color)
 	.setTitle(name + "'s Ranked PDT Profile")
