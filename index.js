@@ -1,8 +1,7 @@
 const { REST, Routes } = require('discord.js');
-const URI = process.env.URI
+const TOKEN = process.env.TOKEN
+const CLIENTID = process.env.CLIENTID
 const GUILDID = process.env.GUILDID
-const CHANNELID = process.env.CHANNELID
-const TOKEN = process.env.TOKEN;
 const fs = require('node:fs');
 const path = require('node:path');
 const commands = [];
