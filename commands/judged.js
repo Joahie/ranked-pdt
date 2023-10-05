@@ -130,7 +130,7 @@ module.exports = {
 			}
 		  }
 
-		var collector = interaction.channel.createMessageComponentCollector({ filter, time: 890 });
+		var collector = interaction.channel.createMessageComponentCollector({ filter, time: 890000 });
 		
 		collector.on('collect', async i => {
 			await i.update({components: [greyOut] });
