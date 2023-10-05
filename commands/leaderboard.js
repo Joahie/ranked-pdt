@@ -114,7 +114,10 @@ module.exports = {
 				embededContent += contentArray[a] + "\n";
 			}
 		}
-
+  		const user = await mongoUsers.findOne({id: interaction.user.id})
+  if(user.wins == 0 && user.losses == 0){
+    ranking = false
+  }
 		if(ranking){
 			var rankString = "Your position: #" + ranking + " - "
 		}else{
