@@ -85,16 +85,16 @@ module.exports = {
 		var contentArray = []
 		for(i = 1; i <= eloArray.length; i++){
 			if(i == 1){
-				line = i + ". " +Math.floor(eloArray[i-1]) + " - " + nameArray[i-1] + " (<@" + idArray[i-1] + ">)"
+				line = "``" + i + ".`` " +Math.floor(eloArray[i-1]) + " - " + nameArray[i-1] + " (<@" + idArray[i-1] + ">)"
 				prevRanking = i;
 			}else{
 				if(prevElo == eloArray[i-1]){
-					line = prevRanking + ". " +Math.floor(eloArray[i-1]) + " - " + nameArray[i-1] + " (<@" + idArray[i-1] + ">)"
+					line = "``" + prevRanking + ".`` " +Math.floor(eloArray[i-1]) + " - " + nameArray[i-1] + " (<@" + idArray[i-1] + ">)"
 					if(interaction.user.id == idArray[i-1]){
 						var ranking = prevRanking;
 					}
 				}else{
-					line = i + ". " +Math.floor(eloArray[i-1]) + " - " + nameArray[i-1] + " (<@" + idArray[i-1] + ">)"
+					line = "``" + i + ".`` " +Math.floor(eloArray[i-1]) + " - " + nameArray[i-1] + " (<@" + idArray[i-1] + ">)"
 					prevRanking = i;
 					if(interaction.user.id == idArray[i-1]){
 						var ranking = i;
