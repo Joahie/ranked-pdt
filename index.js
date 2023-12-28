@@ -2,7 +2,8 @@ const cron = require('cron');
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits,ActivityType} = require('discord.js');
-const { MongoClient } = require('mongodb')const TOKEN = process.env.TOKEN
+const { MongoClient } = require('mongodb')
+const TOKEN = process.env.TOKEN
 const CLIENTID = process.env.CLIENTID
 const GUILDID = process.env.GUILDID
 const mongoclient = new MongoClient(URI, { useUnifiedTopology: true });
