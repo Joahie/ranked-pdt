@@ -1,4 +1,5 @@
 //if the database is being odd do kill 1 in shell
+require('dotenv').config();
 const cron = require('cron');
 const fs = require('node:fs');
 const path = require('node:path');
