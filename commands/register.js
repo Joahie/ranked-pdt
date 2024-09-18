@@ -93,7 +93,7 @@ module.exports = {
         { name: 'Elo Boosts (1.2x)', value: "0", inline: true },
         { name: 'Rounds judged', value: "0", inline: true },
 
-    { name: 'Rank', value: ranking, inline: true },
+    { name: 'Rank', value: "This user hasn't competed", inline: true },
     { name: 'Record', value: "0-0", inline: true },
 
     { name: 'Club', value: club, inline: true },
