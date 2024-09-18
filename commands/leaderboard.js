@@ -17,6 +17,9 @@ module.exports = {
 			leaderboardPage = 1;
 		}
     const count = await mongoUsers.count({ $or: [ { wins: { $gt: 0 } }, { losses: { $gt: 0 } } ] , deleted: {$ne: true}})
+		if(count == 0){
+			return interaction.reply({content: "Currently no debaters have competed"})
+		}
 		var pages = Math.ceil(count/10)
 		if(pages < leaderboardPage){ 
 			if(pages > 1){
@@ -115,9 +118,12 @@ module.exports = {
 			}
 		}
   		const user = await mongoUsers.findOne({id: interaction.user.id})
-  if(user.wins == 0 && user.losses == 0){
-    ranking = false
-  }
+  
+        if(!user){
+          ranking = false
+        }else if ((user.wins == 0 && user.losses == 0)){
+          ranking = false
+        }
 		if(ranking){
 			var rankString = "Your position: #" + ranking + " - "
 		}else{
