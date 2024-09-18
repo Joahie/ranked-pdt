@@ -1,3 +1,4 @@
+//if the database is being odd do kill 1 in shell
 const cron = require('cron');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -6,16 +7,17 @@ const { MongoClient } = require('mongodb')
 const TOKEN = process.env.TOKEN
 const CLIENTID = process.env.CLIENTID
 const GUILDID = process.env.GUILDID
+const URI = process.env.URI
 const mongoclient = new MongoClient(URI, { useUnifiedTopology: true });
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+const mongoTime = mongoclient.db("RankedPDT").collection("time");
 
 const now = new Date();
-const targetDate = new Date('2023-09-17T00:00:00-07:00');
-const targetDate2 = new Date('2023-09-18T00:00:00-07:00');
-
+const targetDate = new Date('2024-10-01T00:00:00-07:00');
+const targetDate2 = new Date('2024-10-02T00:00:00-07:00');
 mongoclient.connect(async function (err, mongoclient) {
 	global.mongoclient = mongoclient;
 	const update_rankings = require("./update-rankings.js");	 
@@ -53,15 +55,18 @@ mongoclient.connect(async function (err, mongoclient) {
 		}
 	});
 	client.on(Events.InteractionCreate, async interaction => {
-		
+		console.log("pog")
 		if (!interaction.isChatInputCommand()) return;
 	
 		
 		if(interaction.channel.id != 1085212287603843185 && interaction.user.id != 681913214744789118 && interaction.user.id != 735892514481111042){
 			return interaction.reply({ content: "Commands only work in <#1085212287603843185>", ephemeral: true });
 		}
+    if(interaction.user.id == 689610884817092686){
+      return interaction.reply({ content: "no", ephemeral: true });
+    }
 		if (now > targetDate && interaction.commandName == "update") {
-			return interaction.reply({ content: "Rounds may no longer be reported because the current Ranked PDT season is over", ephemeral: true });
+			return interaction.reply({ content: "Rounds may no longer be reported because the Ranked PDT season is over.", ephemeral: true });
 		}
 		const command = client.commands.get(interaction.commandName);
 	
