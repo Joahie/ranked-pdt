@@ -56,7 +56,7 @@ module.exports = {
 				return interaction.reply({ content: "You need 4 unique debaters. They can't be the same person.", ephemeral: true });
 			}
 			var totalVotes = govVotes + oppVotes;
-			
+      
 			var govDB1 = await mongoUsers.findOne({id: gov1.id})
 			var oppDB1 = await mongoUsers.findOne({id: opp1.id})
 			var govDB2 = await mongoUsers.findOne({id: gov2.id})
