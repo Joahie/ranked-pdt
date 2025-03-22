@@ -19,20 +19,6 @@ module.exports = {
     .addUserOption(option => option.setName('opposition-team-two').setDescription('Second debater on the opposition team').setRequired(false)),
   async execute(interaction) {
     try {
-      /*
-      function compareDate() {
-        var limitDate = new Date(2023, 04, 1, 7, 0);
-        var currentDate = new Date();
-        console.log(currentDate)
-        if (currentDate > limitDate) {
-           return true;
-         }else{
-          return false;
-         }
-       }
-       if(compareDate()){
-        return interaction.reply({ content: "Ranked PDT season 1 has ended, so you can't upload round results anymore", ephemeral: true });
-      }*/
 
       var gov = interaction.options.getUser('government-team-one');
       var opp = interaction.options.getUser('opposition-team-one');

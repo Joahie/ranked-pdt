@@ -10,9 +10,7 @@ async function updateRankings(client, guild_id, channel_id) {
     var changeArray = [];
     const inactiveUsers = await mongoUsers.find({ wins: 0, losses: 0 ,deleted: {$ne: true}}).toArray()
     const activeUsers = await mongoUsers.find({ $or: [ { wins: { $gt: 0 } }, { losses: { $gt: 0 } } ] , deleted: {$ne: true}}).toArray()
-  console.log(inactiveUsers.length)
     for(let i = 0; i < inactiveUsers.length; i++){
-      console.log(i)
         let user = inactiveUsers[i]
         if(user.rank != "st"){
             let oldRank;
@@ -43,50 +41,38 @@ async function updateRankings(client, guild_id, channel_id) {
             await mongoUsers.updateOne({id: user.id}, {$set:{rank: "st"}});
         }
         try{
-          console.log("part 1 done")
           guildID = 1085211646353485864;
           userID = user.id
           let guild = client.guilds.cache.get(guildID)
-var member = guild.members.cache.get(userID)
+          var member = guild.members.cache.get(userID)
           if(!member){
             console.log("Couldn't find the user " + user.id+ " to assign them a rank")
-            console.log("THIS IS IT")
           }else{
-                    //const member = await guild.members.fetch(user.id);
-          console.log("member")
-        if(member.roles.cache.some(role => role.name === 'Gold')){
-            var goldRole = member.guild.roles.cache.find(role => role.name == "Gold");
-            member.roles.remove(goldRole);
-        }
-                    console.log("gold")
-
-        if(member.roles.cache.some(role => role.name === 'Silver')){
-            var silverRole = member.guild.roles.cache.find(role => role.name == "Silver");
-            member.roles.remove(silverRole);
-        }
-          console.log("silver")
-        if(member.roles.cache.some(role => role.name === 'Bronze')){
-            var bronzeRole = member.guild.roles.cache.find(role => role.name == "Bronze");
-            member.roles.remove(bronzeRole);
-        }          console.log("bronze")
-
-        if(member.roles.cache.some(role => role.name === 'Wood')){
-            var woodRole = member.guild.roles.cache.find(role => role.name == "Wood");
-            member.roles.remove(woodRole);
-        }
-                    console.log("wood")
-
-        if(!member.roles.cache.some(role => role.name === 'Stone')){
-            var role = member.guild.roles.cache.find(role => role.name == "Stone");
-            member.roles.add(role);
-        }
-          console.log("stone")
+            if(member.roles.cache.some(role => role.name === 'Gold')){
+              var goldRole = member.guild.roles.cache.find(role => role.name == "Gold");
+              member.roles.remove(goldRole);
+            }
+            if(member.roles.cache.some(role => role.name === 'Silver')){
+                var silverRole = member.guild.roles.cache.find(role => role.name == "Silver");
+                member.roles.remove(silverRole);
+            }
+            if(member.roles.cache.some(role => role.name === 'Bronze')){
+                var bronzeRole = member.guild.roles.cache.find(role => role.name == "Bronze");
+                member.roles.remove(bronzeRole);
+            }
+            if(member.roles.cache.some(role => role.name === 'Wood')){
+                var woodRole = member.guild.roles.cache.find(role => role.name == "Wood");
+                member.roles.remove(woodRole);
+            }
+            if(!member.roles.cache.some(role => role.name === 'Stone')){
+                var role = member.guild.roles.cache.find(role => role.name == "Stone");
+                member.roles.add(role);
+            }
           }
-    }catch{console.log("Couldn't find the user " + user.id+ " to assign them a rank")
-  }      
-                 console.log(user)     
+        }catch{
+          console.log("Couldn't find the user " + user.id+ " to assign them a rank")
+        }      
     }
-  console.log("DONE EZZZZZZ")
     var eloArray = [];
     var idArray = [];
     var rankArray = [];
@@ -139,7 +125,6 @@ var member = guild.members.cache.get(userID)
         woodB++;
         bronzeU++;
     }    
-console.log("partly done")
     for(let i = 0; i < eloArray.length; i++){
         if(i<=2){
             if(!diamondArray[i]){
@@ -256,7 +241,10 @@ console.log("partly done")
                     member.roles.add(role);
                 }
 
-            }catch{console.log("Couldn't find the user " + idArray[i]+ " to assign them a rank")}        }else if(i >= woodB && i <= woodU){
+            }catch{
+              console.log("Couldn't find the user " + idArray[i]+ " to assign them a rank")
+            }
+            }else if(i >= woodB && i <= woodU){
             if(rankArray[i] != "w"){
                 let results = await mongoUsers.findOne({id: idArray[i]});
                 changeArray.push(rankChange(results.firstName, results.lastName, rankArray[i], "w"))
@@ -285,15 +273,17 @@ console.log("partly done")
                      member.roles.add(role);
                 }
 
-            }catch{console.log("Couldn't find the user " + idArray[i]+ " to assign them a rank")}        }
+            }catch{
+              console.log("Couldn't find the user " + idArray[i]+ " to assign them a rank")
+            }        
+        }
             
     }    
-    console.log("kinda done")
     const channel = client.channels.cache.get(channel_id);
     for(let i = 0; i<changeArray.length; i++){
         channel.send(changeArray[i]);    
     }
-    return console.log("DONE");
+    return;
 }
 function quickSortFourArraysDescending(arr1, arr2, arr3, arr4) {
     if (arr1.length <= 1) {
@@ -406,7 +396,6 @@ switch(usersRank) {
               }else{
                 return firstName + " " + lastName + "'s rank was changed to "+newRankName
               }
-console.log("DONE")
 
 }
 module.exports = {updateRankings};
